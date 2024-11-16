@@ -1,30 +1,32 @@
-
-"use client"; // Menjadikan file ini sebagai komponen klien
+"use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; 
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const router = useRouter();
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // Buat interval untuk mengupdate nilai progress secara bertahap
+    // Create an interval to update the progress value
     const interval = setInterval(() => {
       setProgress((oldProgress) => {
         if (oldProgress >= 100) {
-          clearInterval(interval);
-          // Redirect ke login
-          router.push('/login');
+          clearInterval(interval); // Clear the interval
           return 100;
         }
-        return oldProgress + 3; // Progress Loading Bar
+        return oldProgress + 3; // Increment progress
       });
-    }, 50); // Interval 50ms
+    }, 50); // Update every 50ms
 
-    // Hapus interval ketika komponen di-unmount
+    // Redirect to login page after progress reaches 100%
+    if (progress >= 100) {
+      router.push("/login");
+    }
+
+    // Cleanup the interval when the component unmounts
     return () => clearInterval(interval);
-  }, [router]);
+  }, [progress, router]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
