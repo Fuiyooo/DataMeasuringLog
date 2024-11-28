@@ -1,7 +1,13 @@
-import React from "react";
+"use client";
 
-function Dashboard() {
-  return <div>Dashboard</div>;
+import OperatorDashboard from "./components/OperatorDashboard";
+import AdminDashboard from "./components/AdminDashboard";
+
+export default function Dashboard() {
+    return(
+    <div>
+      <OperatorDashboard />
+      <AdminDashboard />
+    </div>
+  );
 }
-
-export default Dashboard;
