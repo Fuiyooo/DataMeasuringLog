@@ -6,18 +6,10 @@ import { z } from "zod";
 
 
 class InvalidLoginError extends CredentialsSignin {
-    code = "Invalid email or password";
+    code = "Invalid username or password";
 }
 class IncorrectPasswordError extends CredentialsSignin {
     code = "Wrong password";
-}
-
-class InvalidPasswordError extends CredentialsSignin {
-    code = "Password must be at least 6 characters long";
-}
-
-class InvalidEmailError extends CredentialsSignin {
-    code = "Invalid Email";
 }
 
 class InternalServerError extends CredentialsSignin {
@@ -27,7 +19,7 @@ class InternalServerError extends CredentialsSignin {
 const prisma = new PrismaClient();
 
 const signInSchema = z.object({
-    email: z.string().email({ message: "Invalid email" }),
+    username: z.string(),
     password: z.string().min(6, { message: "Password must be at least 6 characters long" })
 });
 
@@ -36,24 +28,24 @@ const authOptions = {
         CredentialsProvider({
             name: "Credentials",
             credentials: {
-                email: { label: "Email", type: "email" },
+                username: { label: "Username", type: "text" },
                 password: { label: "Password", type: "password" }
             },
             authorize: async (credentials) => {
                 try {
                     // Validate the input using Zod schema
-                    const { email, password } = signInSchema.parse(credentials);
+                    const { username, password } = signInSchema.parse(credentials);
 
                     // Find the user in the database
                     const user = await prisma.user.findUnique({
-                        where: { email }
+                        where: { username }
                     });
 
                     // Check if the user exists and the password is correct
                     if (user) {
                         const isPasswordValid = bcrypt.compareSync(password, user.password);
                         if (isPasswordValid) {
-                            return { id: user.id, email: user.email, name: user.name };
+                            return { id: user.id, username: user.username, name: user.name };
                         } else {
                             throw new IncorrectPasswordError();
                         }
@@ -64,10 +56,8 @@ const authOptions = {
                     if (error instanceof z.ZodError) {
                         console.error("Validation error:", error.errors);
                         const errorMessage = error.errors[0].message;
-                        if (errorMessage === "Invalid email") {
-                            throw new InvalidEmailError();
-                        } else if (errorMessage === "Password must be at least 6 characters long") {
-                            throw new InvalidPasswordError();
+                        if (errorMessage === "Password must be at least 6 characters long") {
+                            throw new IncorrectPasswordError();
                         }
                     } else if (error instanceof IncorrectPasswordError) {
                         throw new IncorrectPasswordError();
@@ -83,7 +73,8 @@ const authOptions = {
         })
     ],
     session: {
-        jwt: true
+        jwt: true,
+        maxAge: 24 * 60 * 60, // 1 day
     },
     callbacks: {
         async jwt({ token, user }) {

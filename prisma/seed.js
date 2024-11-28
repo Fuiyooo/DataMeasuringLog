@@ -4,19 +4,32 @@ const bcrypt = require('bcrypt');
 const prisma = new PrismaClient();
 
 async function main() {
-    const password = await bcrypt.hash('password123', 10);
+    const operatorPassword = await bcrypt.hash('operator123', 10);
+    const adminPassword = await bcrypt.hash('admin123', 10);
 
-    const user = await prisma.user.upsert({
-        where: { email: 'user@example.com' },
+    const operator = await prisma.user.upsert({
+        where: { username: 'operator' },
         update: {},
         create: {
-            email: 'user@example.com',
-            password: password,
-            name: 'John Doe',
+            username: 'operator',
+            password: operatorPassword,
+            name: 'Operator User',
+            role: 'OPERATOR', // Set the role to OPERATOR
         },
     });
 
-    console.log({ user });
+    const admin = await prisma.user.upsert({
+        where: { username: 'admin' },
+        update: {},
+        create: {
+            username: 'admin',
+            password: adminPassword,
+            name: 'Admin User',
+            role: 'ADMIN', // Set the role to ADMIN
+        },
+    });
+
+    console.log({ operator, admin });
 }
 
 main()

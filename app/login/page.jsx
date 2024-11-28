@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export default function Login() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
@@ -23,8 +23,8 @@ export default function Login() {
 
     const res = await signIn("credentials", {
       redirect: false,
-      email,
-      password
+      username,
+      password,
     });
 
     if (res.error) {
@@ -44,11 +44,11 @@ export default function Login() {
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <input
-              type="email"
+              type="text"
               className="w-full px-4 py-2 text-gray-700 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
