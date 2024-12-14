@@ -45,7 +45,7 @@ const authOptions = {
                     if (user) {
                         const isPasswordValid = bcrypt.compareSync(password, user.password);
                         if (isPasswordValid) {
-                            return { id: user.id, username: user.username, name: user.name };
+                            return { id: user.id, username: user.username, name: user.name, role: user.role };
                         } else {
                             throw new IncorrectPasswordError();
                         }
@@ -80,12 +80,14 @@ const authOptions = {
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
+                token.role = user.role;
             }
             return token;
         },
         async session({ session, token }) {
             if (token) {
                 session.id = token.id;
+                session.role = token.role;
             }
             return session;
         }
