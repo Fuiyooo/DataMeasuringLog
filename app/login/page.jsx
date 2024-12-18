@@ -13,9 +13,16 @@ export default function Login() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      router.push("/dashboard");
+      // Cek role untuk menentukan arah dashboard
+      if (session?.user?.role === "ADMIN") {
+        router.push("/dashboard/admin");
+      } else if (session?.user?.role === "OPERATOR") {
+        router.push("/dashboard/operator");
+      } else {
+        router.push("/dashboard");
+      }
     }
-  }, [status, router]);
+  }, [status, session, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,11 +35,16 @@ export default function Login() {
     });
 
     if (res.error) {
-      if (res.error === "CredentialsSignin") {
-        setError(res.code);
-      }
+      setError("Login gagal! Periksa kembali username dan password.");
     } else {
-      router.push("/dashboard");
+      // Redirect berdasarkan role setelah login
+      if (session?.user?.role === "ADMIN") {
+        router.push("/dashboard/admin");
+      } else if (session?.user?.role === "OPERATOR") {
+        router.push("/dashboard/operator");
+      } else {
+        router.push("/dashboard");
+      }
     }
   };
 

@@ -4,6 +4,7 @@ import OperatorDashboard from "./components/OperatorDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import { useSession, signOut } from "next-auth/react";
 
+
 export default function Dashboard() {
   const { data: session, status } = useSession();
 
@@ -19,6 +20,7 @@ export default function Dashboard() {
         </div>
       );
     } else if (session.role === "ADMIN") {
+
       return (
         <div>
           <AdminDashboard />

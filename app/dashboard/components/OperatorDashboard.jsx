@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, getSession } from "next-auth/react";
 
 export default function OperatorDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
+  const [userName, setUserName] = useState(""); // State untuk nama user
   const router = useRouter();
 
   const toggleSidebar = () => {
@@ -22,6 +23,18 @@ export default function OperatorDashboard() {
       year: "numeric",
     });
     setCurrentDate(formattedDate);
+  }, []);
+
+  // Ambil data user saat komponen di-render
+  useEffect(() => {
+    const fetchUser = async () => {
+      const session = await getSession(); // Ambil sesi user
+      if (session && session.user) {
+        setUserName(session.user.name || "User"); // Simpan nama user
+      }
+    };
+
+    fetchUser();
   }, []);
 
   return (
@@ -72,7 +85,7 @@ export default function OperatorDashboard() {
         <main className="flex-1 p-6 flex flex-col items-center justify-start mt-10">
           <div className="text-center mb-6">
             <h2 className="text-3xl font-bold text-gray-800">
-              Welcome to Operator Dashboard
+              Welcome {userName} to Operator Dashboard
             </h2>
           </div>
           <div className="flex flex-col gap-6 w-80">
