@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, getSession } from "next-auth/react";
 import AdminSettings from "./adminSettings"; // Import komponen AdminSettings
+import ManageOperator from "./manageOperator"; // Import komponen ManageOperator
 
 export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -40,8 +41,12 @@ export default function AdminDashboard() {
   }, []);
 
   const navigateTo = (path) => {
-    if (path === "adminSettings") {
+    if (path === "dashboard") {
+      setView("dashboard"); // Navigasi internal ke dashboard
+    } else if (path === "adminSettings") {
       setView("adminSettings"); // Navigasi internal ke AdminSettings
+    } else if (path === "manageOperator") {
+      setView("manageOperator"); // Navigasi internal ke ManageOperator
     } else {
       router.push(path); // Navigasi eksternal ke URL lain
     }
@@ -63,13 +68,19 @@ export default function AdminDashboard() {
         </button>
         <nav className="flex flex-col mt-4">
           <button
+            onClick={() => navigateTo("dashboard")}
+            className="p-4 text-left hover:bg-gray-700"
+          >
+            Dashboard
+          </button>
+          <button
             onClick={() => navigateTo("/parameter")}
             className="p-4 text-left hover:bg-gray-700"
           >
             Parameter
           </button>
           <button
-            onClick={() => navigateTo("/manageOperator")}
+            onClick={() => navigateTo("manageOperator")}
             className="p-4 text-left hover:bg-gray-700"
           >
             Manage Operator
@@ -99,14 +110,21 @@ export default function AdminDashboard() {
           >
             ☰
           </button>
-          <h1 className="text-gray-900 text-xl font-bold">Admin Dashboard</h1>
+          <h1
+            className="text-gray-900 text-xl font-bold cursor-pointer"
+            onClick={() => navigateTo("dashboard")}
+          >
+            Admin Dashboard
+          </h1>
           <p className="text-gray-500">{currentDate}</p>
         </header>
 
         {/* Main Content */}
         <main className="flex-1 p-6 flex flex-col items-center justify-start mt-10">
           {view === "adminSettings" ? (
-            <AdminSettings onBack={() => setView("dashboard")} /> // Tampilkan AdminSettings jika state view == "adminSettings"
+            <AdminSettings onBack={() => setView("dashboard")} />
+          ) : view === "manageOperator" ? (
+            <ManageOperator onBack={() => setView("dashboard")} />
           ) : (
             <>
               <div className="text-center mb-6">
@@ -122,7 +140,7 @@ export default function AdminDashboard() {
                   Parameter
                 </button>
                 <button
-                  onClick={() => navigateTo("/manageOperator")}
+                  onClick={() => navigateTo("manageOperator")}
                   className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded text-lg"
                 >
                   Manage Operator
