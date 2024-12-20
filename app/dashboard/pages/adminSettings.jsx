@@ -32,7 +32,7 @@ export default function AdminSettings({ onBack }) {
   };
 
   return (
-    <div className="h-screen flex flex-col items-center justify-start bg-gray-100 pt-10">
+    <div className="max-h-screen flex flex-col items-center justify-start bg-gray-100 pt-10">
       <div className="bg-white p-8 rounded shadow-lg w-[400px]">
         <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">Change Password</h1>
 
