@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signOut, getSession } from "next-auth/react";
 import AdminSettings from "./adminSettings"; // Import komponen AdminSettings
 import ManageOperator from "./manageOperator"; // Import komponen ManageOperator
+import ParameterSettings from "./parameter";
 
 export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -47,6 +48,8 @@ export default function AdminDashboard() {
       setView("adminSettings"); // Navigasi internal ke AdminSettings
     } else if (path === "manageOperator") {
       setView("manageOperator"); // Navigasi internal ke ManageOperator
+    } else if(path === "parameter"){
+      setView("parameter");
     } else {
       router.push(path); // Navigasi eksternal ke URL lain
     }
@@ -74,7 +77,7 @@ export default function AdminDashboard() {
             Dashboard
           </button>
           <button
-            onClick={() => navigateTo("/parameter")}
+            onClick={() => navigateTo("parameter")}
             className="p-4 text-left hover:bg-gray-700"
           >
             Parameter
@@ -125,7 +128,9 @@ export default function AdminDashboard() {
             <AdminSettings onBack={() => setView("dashboard")} />
           ) : view === "manageOperator" ? (
             <ManageOperator onBack={() => setView("dashboard")} />
-          ) : (
+          ) : view === "parameter" ? (
+            <ParameterSettings onback={() => setView("dashboard")} />
+          ) : ( 
             <>
               <div className="text-center mb-6">
                 <h2 className="text-3xl font-bold text-gray-800">
@@ -134,10 +139,10 @@ export default function AdminDashboard() {
               </div>
               <div className="flex flex-col gap-6 w-80">
                 <button
-                  onClick={() => navigateTo("/parameter")}
+                  onClick={() => navigateTo("parameter")}
                   className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded text-lg"
                 >
-                  Parameter
+                  Parameter Settings
                 </button>
                 <button
                   onClick={() => navigateTo("manageOperator")}
