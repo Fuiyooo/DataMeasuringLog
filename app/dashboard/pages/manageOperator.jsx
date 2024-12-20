@@ -5,8 +5,8 @@ export default function ManageOperator() {
   const [isEditing, setIsEditing] = useState(false);
   const [editOperator, setEditOperator] = useState(null); // State untuk operator yang sedang diedit
   const [operators, setOperators] = useState([
-    { id: 1, name: "John Doe", username: "johndoe", password: "123456" },
-    { id: 2, name: "Jane Smith", username: "janesmith", password: "abcdef" },
+    { id: 1, name: "Timothy Cliff", username: "ming", password: "ming123" },
+    
   ]);
   const [newOperator, setNewOperator] = useState({
     name: "",
