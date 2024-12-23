@@ -154,18 +154,22 @@ export async function POST(req) {
 
                 case "create":
                     // Create a new user
-                    if (!userData || !userData.name || !userData.username || !userData.role) {
+                    if (!userData || !userData.name || !userData.username) {
                         return new NextResponse(
                             JSON.stringify({ error: "Missing user data" }),
                             { status: 400 }
                         );
                     }
 
+                    // Hash the password
+                    const hashedPassword = await bcrypt.hash(userData.password, 10);
+
                     const newUser = await prisma.user.create({
                         data: {
                             name: userData.name,
                             username: userData.username,
-                            role: userData.role,
+                            password: hashedPassword,
+                            role: "OPERATOR", // Set the role to 'OPERATOR'
                         },
                     });
 
@@ -173,7 +177,7 @@ export async function POST(req) {
 
                 // case "update":
                 //     // Update an existing user
-                //     if (!userData || !userData.id || !userData.name || !userData.username || !userData.role) {
+                //     if (!userData || !userData.id || !userData.name || !userData.username) {
                 //         return new NextResponse(
                 //             JSON.stringify({ error: "Missing user data or ID" }),
                 //             { status: 400 }
@@ -185,7 +189,7 @@ export async function POST(req) {
                 //         data: {
                 //             name: userData.name,
                 //             username: userData.username,
-                //             role: userData.role,
+                //             role: "OPERATOR",
                 //         },
                 //     });
 
