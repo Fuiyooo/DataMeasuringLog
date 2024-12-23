@@ -27,7 +27,6 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
     const res = await signIn("credentials", {
       redirect: false,
       username,

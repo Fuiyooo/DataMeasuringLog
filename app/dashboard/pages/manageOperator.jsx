@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import getOperators from "./action/getOperators"; // Import fungsi getOperators
+import createOperator from "./action/createOperator"; // Import fungsi createOperator
+import updateOperator from "./action/updateOperator"; // Import fungsi updateOperator
+import deleteOperator from "./action/deleteOperator"; // Import fungsi deleteOperator
 
 export default function ManageOperator() {
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editOperator, setEditOperator] = useState(null); // State untuk operator yang sedang diedit
-  const [operators, setOperators] = useState([
-    { id: 1, name: "Timothy Cliff", username: "ming", password: "ming123" },
-    
-  ]);
+  const [editOperator, setEditOperator] = useState(null);
+  const [operators, setOperators] = useState([]);
   const [newOperator, setNewOperator] = useState({
     name: "",
     username: "",
@@ -18,6 +19,16 @@ export default function ManageOperator() {
   const [showConfirmAdd, setShowConfirmAdd] = useState(false); // Confirmation box untuk add
   const [showConfirmUpdate, setShowConfirmUpdate] = useState(false); // Confirmation box untuk update
   const [selectedOperator, setSelectedOperator] = useState(null); // Operator yang akan dihapus atau diperbarui
+
+  // Fetch operators saat komponen pertama kali di-render
+  useEffect(() => {
+    const fetchOperators = async () => {
+      const data = await getOperators(); // Mengambil data dari API
+      setOperators(data); // Set data ke state operators
+    };
+
+    fetchOperators();
+  }, []);
 
   // Handle perubahan input form
   const handleChange = (e) => {
@@ -48,27 +59,38 @@ export default function ManageOperator() {
   };
 
   // Konfirmasi penambahan operator
-  const confirmAdd = () => {
+  const confirmAdd = async () => {
     const newId = operators.length + 1;
-    setOperators((prev) => [
-      ...prev,
-      { id: newId, ...newOperator },
-    ]);
-    setNewOperator({ name: "", username: "", password: "" });
-    setIsAdding(false);
-    setShowConfirmAdd(false); // Sembunyikan confirmation box
+    try {
+      await createOperator(newOperator);
+
+      setOperators((prev) => [...prev, { id: newId, ...newOperator }]);
+
+      setNewOperator({ name: "", username: "", password: "" });
+      setIsAdding(false);
+      setShowConfirmAdd(false); // Sembunyikan confirmation box
+    } catch (error) {
+      console.error("Error adding operator:", error);
+    }
   };
 
   // Konfirmasi pembaruan operator
-  const confirmUpdate = () => {
-    setOperators((prev) =>
-      prev.map((operator) =>
-        operator.id === editOperator.id ? editOperator : operator
-      )
-    );
-    setIsEditing(false);
-    setEditOperator(null);
-    setShowConfirmUpdate(false); // Sembunyikan confirmation box
+  const confirmUpdate = async () => {
+    try {
+      await updateOperator(editOperator);
+
+      setOperators((prev) =>
+        prev.map((operator) =>
+          operator.id === editOperator.id ? editOperator : operator
+        )
+      );
+
+      setIsEditing(false);
+      setEditOperator(null);
+      setShowConfirmUpdate(false); // Sembunyikan confirmation box
+    } catch (error) {
+      console.error("Error updating operator:", error);
+    }
   };
 
   // Handle klik tombol Edit
@@ -84,12 +106,19 @@ export default function ManageOperator() {
   };
 
   // Konfirmasi penghapusan operator
-  const confirmRemove = () => {
-    setOperators((prev) =>
-      prev.filter((operator) => operator.id !== selectedOperator.id)
-    );
-    setShowConfirm(false); // Sembunyikan confirmation box
-    setSelectedOperator(null);
+  const confirmRemove = async () => {
+    try {
+      await deleteOperator(selectedOperator);
+
+      setOperators((prev) =>
+        prev.filter((operator) => operator.id !== selectedOperator.id)
+      );
+
+      setShowConfirm(false);
+      setSelectedOperator(null);
+    } catch (error) {
+      console.error("Error deleting operator:", error);
+    }
   };
 
   // Batalkan penghapusan, penambahan, atau pembaruan
@@ -103,7 +132,6 @@ export default function ManageOperator() {
   return (
     <div className="max-h-screen bg-gray-100 flex flex-col items-center">
       <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg mt-10 p-6">
-        {/* Header */}
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-xl font-bold text-gray-800">Operator List</h1>
           {!isAdding && !isEditing && (
@@ -116,25 +144,40 @@ export default function ManageOperator() {
           )}
         </div>
 
-        {/* Tabel atau Form */}
         {!isAdding && !isEditing ? (
           <table className="w-full table-auto border-collapse border border-gray-300">
             <thead>
               <tr className="bg-[#222E43] text-white">
-                <th className="border border-gray-300 px-4 py-2 text-left">No</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Nama Operator</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Username</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Password</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Actions</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">
+                  No
+                </th>
+                <th className="border border-gray-300 px-4 py-2 text-left">
+                  Nama Operator
+                </th>
+                <th className="border border-gray-300 px-4 py-2 text-left">
+                  Username
+                </th>
+                <th className="border border-gray-300 px-4 py-2 text-left">
+                  Password
+                </th>
+                <th className="border border-gray-300 px-4 py-2 text-left">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody>
               {operators.map((operator, index) => (
                 <tr key={operator.id} className="text-gray-700">
-                  <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
-                  <td className="border border-gray-300 px-4 py-2">{operator.name}</td>
-                  <td className="border border-gray-300 px-4 py-2">{operator.username}</td>
-                  <td className="border border-gray-300 px-4 py-2">{operator.password}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {index + 1}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {operator.name}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {operator.username}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">***</td>
                   <td className="border border-gray-300 px-4 py-2 flex gap-2">
                     <button
                       className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
@@ -159,7 +202,9 @@ export default function ManageOperator() {
             className="space-y-6"
           >
             <div>
-              <label className="block text-gray-700 font-bold">Nama Operator</label>
+              <label className="block text-gray-700 font-bold">
+                Nama Operator
+              </label>
               <input
                 type="text"
                 name="name"
@@ -191,7 +236,7 @@ export default function ManageOperator() {
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded px-4 py-2 text-black"
                 placeholder="Password"
-                required
+                required={isEditing ? false : true}
               />
             </div>
             <div className="flex justify-end gap-4">
@@ -223,7 +268,8 @@ export default function ManageOperator() {
             <h2 className="text-lg font-bold mb-4">
               {showConfirm && "Are you sure want to remove?"}
               {showConfirmAdd && "Are you sure want to add this operator?"}
-              {showConfirmUpdate && "Are you sure want to update this operator?"}
+              {showConfirmUpdate &&
+                "Are you sure want to update this operator?"}
             </h2>
             <div className="flex justify-between">
               <button
