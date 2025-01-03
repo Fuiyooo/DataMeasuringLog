@@ -29,12 +29,15 @@ export default function AdminSettings({ onBack }) {
 
   const confirmSave = async () => {
     try {
-      changePasswordAdmin(newPassword);
+      const passwordUpdate = changePasswordAdmin(newPassword);
 
-      // Simulasi update password
-      setShowConfirmPopup(false);
-      setOldPassword("");
-      setNewPassword("");
+      if (passwordUpdate) {
+        // Simulasi update password
+        setShowConfirmPopup(false);
+        setOldPassword("");
+        setNewPassword("");
+      }
+      // TODO: Notifikasi Berhasil + Error jika password tidak berhasil diupdate
     } catch (error) {
       console.error("Error in confirming: ", error);
     }
