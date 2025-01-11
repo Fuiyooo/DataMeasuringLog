@@ -3,15 +3,11 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, getSession } from "next-auth/react";
-import AdminSettings from "./adminSettings"; // Import komponen AdminSettings
-import ManageOperator from "./manageOperator"; // Import komponen ManageOperator
-import ParameterSettings from "./parameter";
 
 export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
-  const [userName, setUserName] = useState(""); // State untuk menyimpan nama user
-  const [view, setView] = useState("dashboard"); // State untuk mengatur tampilan
+  const [userName, setUserName] = useState("");
   const router = useRouter();
 
   const toggleSidebar = () => {
@@ -29,12 +25,12 @@ export default function AdminDashboard() {
     setCurrentDate(formattedDate);
   }, []);
 
-  // Ambil data user saat komponen pertama kali di-render
+  // Fetch user session
   useEffect(() => {
     const fetchUser = async () => {
-      const session = await getSession(); // Ambil sesi pengguna
+      const session = await getSession();
       if (session && session.user) {
-        setUserName(session.user.name || "User"); // Set nama user dari sesi
+        setUserName(session.user.name || "User");
       }
     };
 
@@ -42,17 +38,7 @@ export default function AdminDashboard() {
   }, []);
 
   const navigateTo = (path) => {
-    if (path === "dashboard") {
-      setView("dashboard"); // Navigasi internal ke dashboard
-    } else if (path === "adminSettings") {
-      setView("adminSettings"); // Navigasi internal ke AdminSettings
-    } else if (path === "manageOperator") {
-      setView("manageOperator"); // Navigasi internal ke ManageOperator
-    } else if (path === "parameter") {
-      setView("parameter");
-    } else {
-      router.push(path); // Navigasi eksternal ke URL lain
-    }
+    router.push(`/${path}`);
   };
 
   return (
@@ -71,7 +57,7 @@ export default function AdminDashboard() {
         </button>
         <nav className="flex flex-col mt-4">
           <button
-            onClick={() => navigateTo("dashboard")}
+            onClick={() => navigateTo("adminDashboard")}
             className="p-4 text-left hover:bg-gray-700"
           >
             Dashboard
@@ -115,7 +101,7 @@ export default function AdminDashboard() {
           </button>
           <h1
             className="text-gray-900 text-xl font-bold cursor-pointer"
-            onClick={() => navigateTo("dashboard")}
+            onClick={() => navigateTo("adminDashboard")}
           >
             Admin Dashboard
           </h1>
@@ -124,47 +110,37 @@ export default function AdminDashboard() {
 
         {/* Main Content */}
         <main className="flex-1 p-6 flex flex-col items-center justify-start mt-10">
-          {view === "adminSettings" ? (
-            <AdminSettings onBack={() => setView("dashboard")} />
-          ) : view === "manageOperator" ? (
-            <ManageOperator onBack={() => setView("dashboard")} />
-          ) : view === "parameter" ? (
-            <ParameterSettings onback={() => setView("dashboard")} />
-          ) : (
-            <>
-              <div className="text-center mb-6">
-                <h2 className="text-3xl font-bold text-gray-800">
-                  Welcome {userName} to Admin Dashboard
-                </h2>
-              </div>
-              <div className="flex flex-col gap-6 w-80">
-                <button
-                  onClick={() => navigateTo("parameter")}
-                  className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded text-lg"
-                >
-                  Parameter Settings
-                </button>
-                <button
-                  onClick={() => navigateTo("manageOperator")}
-                  className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded text-lg"
-                >
-                  Manage Operator
-                </button>
-                <button
-                  onClick={() => navigateTo("adminSettings")}
-                  className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded text-lg"
-                >
-                  Admin Settings
-                </button>
-                <button
-                  onClick={() => signOut({ callbackUrl: "/" })}
-                  className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded text-lg"
-                >
-                  Log Out
-                </button>
-              </div>
-            </>
-          )}
+          <div className="text-center mb-6">
+            <h2 className="text-3xl font-bold text-gray-800">
+              Welcome {userName} to Admin Dashboard
+            </h2>
+          </div>
+          <div className="flex flex-col gap-6 w-80">
+            <button
+              onClick={() => navigateTo("parameter")}
+              className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded text-lg"
+            >
+              Parameter Settings
+            </button>
+            <button
+              onClick={() => navigateTo("manageOperator")}
+              className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded text-lg"
+            >
+              Manage Operator
+            </button>
+            <button
+              onClick={() => navigateTo("adminSettings")}
+              className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded text-lg"
+            >
+              Admin Settings
+            </button>
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-6 rounded text-lg"
+            >
+              Log Out
+            </button>
+          </div>
         </main>
       </div>
     </div>

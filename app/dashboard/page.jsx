@@ -1,7 +1,7 @@
 "use client";
 
-import OperatorDashboard from "./pages/OperatorDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
+import OperatorDashboard from "./components/OperatorDashboard";
+import AdminDashboard from "./components/AdminDashboard";
 import { useSession, signOut } from "next-auth/react";
 
 export default function Dashboard() {
