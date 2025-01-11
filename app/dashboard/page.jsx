@@ -22,7 +22,7 @@ export default function Dashboard() {
           <OperatorDashboard />
         </div>
       );
-    } else if (session.role === "ADMIN") {
+    } else if (session.role === "ADMIN" || session.role === "DEVELOPER") {
       return (
         <div>
           <AdminDashboard />

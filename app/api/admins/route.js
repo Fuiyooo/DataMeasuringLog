@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers"; // Import cookies API
 import prisma from "@/app/lib/prisma";
-const bcrypt = require('bcrypt');
 
 // POST method for fetching users with 'OPERATOR' role
 export async function POST(req) {
@@ -34,9 +33,9 @@ export async function POST(req) {
 
         let isAdmin = false;
 
-        if (!session || !session.user || session.role !== 'ADMIN') {
+        if (!session || !session.user || (session.role !== 'ADMIN' && session.role !== 'DEVELOPER')) {
             isAdmin = false;
-        } else if (session.role === 'ADMIN') {
+        } else if (session.role === 'ADMIN' || session.role === 'DEVELOPER') {
             isAdmin = true;
         }
 
@@ -60,12 +59,12 @@ export async function POST(req) {
                         select: { password: true },
                     });
 
-                    const isPasswordValid = await bcrypt.compare(oldPasswordInput, currentUserCheck.password);
+                    const isPasswordValid = oldPasswordInput === currentUserCheck.password;
                     return new NextResponse(String(isPasswordValid), { status: 200 });
 
                 case "update":
                     // Update an existing user
-                    if (!session.user || session.role != 'ADMIN') {
+                    if (!session.user || session.role != 'ADMIN' || session.role !== 'DEVELOPER') {
                         return new NextResponse(
                             JSON.stringify({ error: "Unauthorized" }),
                             { status: 403 }
@@ -76,9 +75,9 @@ export async function POST(req) {
 
                     let updatedPassword = newPasswordInput;
 
-                    if (session.id && session.role === 'ADMIN') {
+                    if (session.id && session.role === 'ADMIN' || session.role === 'DEVELOPER') {
                         // Hash the new password if provided
-                        updatedPassword = await bcrypt.hash(newPasswordInput, 10);
+                        updatedPassword = newPasswordInput;
                     }
 
                     const updatedUser = await prisma.user.update({

@@ -2,7 +2,6 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers"; // Import cookies API
 import prisma from "@/app/lib/prisma";
-const bcrypt = require('bcrypt');
 
 // POST method for fetching users with 'OPERATOR' role
 export async function POST(req) {
@@ -33,15 +32,15 @@ export async function POST(req) {
         const session = await auth();
 
         let isAdmin = false;
-
-        if (!session || !session.user || session.role !== 'ADMIN') {
+        if (!session || !session.user || (session.role !== 'ADMIN' && session.role !== 'DEVELOPER')) {
             isAdmin = false;
-        } else if (session.role === 'ADMIN') {
+        } else if (session.role === 'ADMIN' || session.role === 'DEVELOPER') {
             isAdmin = true;
         }
 
         // Parse request body
         const { action, userData } = await req.json(); // Extract action and user data
+
         if (isAdmin) {
             switch (action) {
                 case "read":
@@ -52,29 +51,31 @@ export async function POST(req) {
                         },
                         select: {
                             id: true,
+                            employee_id: true,
                             name: true,
                             username: true,
+                            password: true,
                         },
                     });
                     return new NextResponse(JSON.stringify(operators), { status: 200 });
 
                 case "create":
                     // Create a new user
-                    if (!userData || !userData.name || !userData.username || !userData.password) {
+                    if (!userData || !userData.employee_id || !userData.name || !userData.username || !userData.password) {
                         return new NextResponse(
                             JSON.stringify({ error: "Missing user data" }),
                             { status: 400 }
                         );
                     }
 
-                    // Hash the password
-                    const hashedPassword = await bcrypt.hash(userData.password, 10);
+                    const newPassword = userData.password;
 
                     const newUser = await prisma.user.create({
                         data: {
                             name: userData.name,
                             username: userData.username,
-                            password: hashedPassword,
+                            employee_id: userData.employee_id,
+                            password: newPassword,
                             role: "OPERATOR", // Set the role to 'OPERATOR'
                         },
                     });
@@ -99,8 +100,7 @@ export async function POST(req) {
                     let updatedPassword = currentUser.password; // Default to the old password
 
                     if (userData.password && userData.password !== "") {
-                        // Hash the new password if provided
-                        updatedPassword = await bcrypt.hash(userData.password, 10);
+                        updatedPassword = userData.password;
                     }
 
                     const updatedUser = await prisma.user.update({
@@ -108,6 +108,7 @@ export async function POST(req) {
                         data: {
                             name: userData.name,
                             username: userData.username,
+                            employee_id: userData.employee_id,
                             password: updatedPassword, // Use the updated password (either new or old)
                             role: "OPERATOR", // Ensure role is set as 'OPERATOR'
                         },
@@ -146,69 +147,36 @@ export async function POST(req) {
                         },
                         select: {
                             id: true,
+                            employee_id: true,
                             name: true,
                             username: true,
+                            password: true,
                         },
                     });
                     return new NextResponse(JSON.stringify(operators), { status: 200 });
 
                 case "create":
                     // Create a new user
-                    if (!userData || !userData.name || !userData.username) {
+                    if (!userData || !userData.employee_id || !userData.name || !userData.username || !userData.password) {
                         return new NextResponse(
                             JSON.stringify({ error: "Missing user data" }),
                             { status: 400 }
                         );
                     }
 
-                    // Hash the password
-                    const hashedPassword = await bcrypt.hash(userData.password, 10);
+                    const newPassword = userData.password;
 
                     const newUser = await prisma.user.create({
                         data: {
                             name: userData.name,
                             username: userData.username,
-                            password: hashedPassword,
+                            employee_id: userData.employee_id,
+                            password: newPassword,
                             role: "OPERATOR", // Set the role to 'OPERATOR'
                         },
                     });
 
                     return new NextResponse(JSON.stringify(newUser), { status: 201 });
-
-                // case "update":
-                //     // Update an existing user
-                //     if (!userData || !userData.id || !userData.name || !userData.username) {
-                //         return new NextResponse(
-                //             JSON.stringify({ error: "Missing user data or ID" }),
-                //             { status: 400 }
-                //         );
-                //     }
-
-                //     const updatedUser = await prisma.user.update({
-                //         where: { id: userData.id },
-                //         data: {
-                //             name: userData.name,
-                //             username: userData.username,
-                //             role: "OPERATOR",
-                //         },
-                //     });
-
-                //     return new NextResponse(JSON.stringify(updatedUser), { status: 200 });
-
-                // case "delete":
-                //     // Delete a user
-                //     if (!userData || !userData.id) {
-                //         return new NextResponse(
-                //             JSON.stringify({ error: "Missing user ID" }),
-                //             { status: 400 }
-                //         );
-                //     }
-
-                //     await prisma.user.delete({
-                //         where: { id: userData.id },
-                //     });
-
-                //     return new NextResponse(JSON.stringify({ message: "User deleted successfully" }), { status: 200 });
 
                 default:
                     return new NextResponse(

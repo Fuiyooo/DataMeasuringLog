@@ -12,6 +12,7 @@ export default function ManageOperator() {
   const [newOperator, setNewOperator] = useState({
     name: "",
     username: "",
+    employee_id: "",
     password: "",
   });
 
@@ -149,7 +150,7 @@ export default function ManageOperator() {
             <thead>
               <tr className="bg-[#222E43] text-white">
                 <th className="border border-gray-300 px-4 py-2 text-left">
-                  No
+                  ID
                 </th>
                 <th className="border border-gray-300 px-4 py-2 text-left">
                   Nama Operator
@@ -169,7 +170,7 @@ export default function ManageOperator() {
               {operators.map((operator, index) => (
                 <tr key={operator.id} className="text-gray-700">
                   <td className="border border-gray-300 px-4 py-2">
-                    {index + 1}
+                    {operator.employee_id}
                   </td>
                   <td className="border border-gray-300 px-4 py-2">
                     {operator.name}
@@ -177,7 +178,9 @@ export default function ManageOperator() {
                   <td className="border border-gray-300 px-4 py-2">
                     {operator.username}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2">***</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                    {operator.password}
+                  </td>
                   <td className="border border-gray-300 px-4 py-2 flex gap-2">
                     <button
                       className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
@@ -224,6 +227,22 @@ export default function ManageOperator() {
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded px-4 py-2 text-black"
                 placeholder="Username"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-gray-700 font-bold">
+                ID Employee
+              </label>
+              <input
+                type="text"
+                name="employee_id"
+                value={
+                  isEditing ? editOperator.employee_id : newOperator.employee_id
+                }
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-4 py-2 text-black"
+                placeholder="ID Employee"
                 required
               />
             </div>

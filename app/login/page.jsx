@@ -14,7 +14,10 @@ export default function Login() {
   useEffect(() => {
     if (status === "authenticated") {
       // Cek role untuk menentukan arah dashboard
-      if (session?.user?.role === "ADMIN") {
+      if (
+        session?.user?.role === "ADMIN" ||
+        session?.user?.role === "DEVELOPER"
+      ) {
         router.push("/dashboard/admin");
       } else if (session?.user?.role === "OPERATOR") {
         router.push("/dashboard/operator");

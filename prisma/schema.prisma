@@ -16,13 +16,64 @@ datasource db {
 enum Role {
   OPERATOR
   ADMIN
+  DEVELOPER
 }
 
 model User {
+  id          Int      @id @default(autoincrement())
+  employee_id String   @unique
+  name        String?
+  username    String   @unique
+  password    String
+  role        Role     @default(OPERATOR)
+  createdAt   DateTime @default(now())
+}
+
+model MeasurementItem {
   id        Int      @id @default(autoincrement())
-  name      String?
-  username  String   @unique
-  password  String
-  role      Role     @default(OPERATOR)
+  id_item   String   @unique
+  name      String
+  type      String
   createdAt DateTime @default(now())
+
+  parameters Parameter[]
+  Item       Item?
+}
+
+model Parameter {
+  id        Int    @id @default(autoincrement())
+  id_item   String // Should match the type of the related field
+  tool_name String // Name of the parameter (e.g., "Weight", "Length")
+  unit      String // Unit of the parameter (e.g., "kg", "cm")
+  minValue  Float // Minimum acceptable value
+  maxValue  Float // Maximum acceptable value
+
+  measurementItem MeasurementItem  @relation(fields: [id_item], references: [id_item])
+  parametersValue ParameterValue[]
+}
+
+model Item {
+  id          Int      @id @default(autoincrement())
+  id_item     String   @unique
+  name        String
+  type        String
+  employee_id String
+  createdAt   DateTime @default(now())
+
+  // Relationship to store product measurement
+  measurementItem MeasurementItem  @relation(fields: [id_item], references: [id_item])
+  // Relationship to store parameter values for the product
+  parametersValue ParameterValue[]
+}
+
+model ParameterValue {
+  id           Int    @id @default(autoincrement())
+  id_item      String
+  id_parameter Int
+  value        Float // Measured value for the parameter
+
+  // Link to Product model (which product the value belongs to)
+  item       Item      @relation(fields: [id_item], references: [id_item])
+  // Link to MeasurementParameter model (which parameter this value corresponds to)
+  parameters Parameter @relation(fields: [id_parameter], references: [id])
 }
