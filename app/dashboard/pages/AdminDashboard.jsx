@@ -48,7 +48,7 @@ export default function AdminDashboard() {
       setView("adminSettings"); // Navigasi internal ke AdminSettings
     } else if (path === "manageOperator") {
       setView("manageOperator"); // Navigasi internal ke ManageOperator
-    } else if(path === "parameter"){
+    } else if (path === "parameter") {
       setView("parameter");
     } else {
       router.push(path); // Navigasi eksternal ke URL lain
@@ -130,7 +130,7 @@ export default function AdminDashboard() {
             <ManageOperator onBack={() => setView("dashboard")} />
           ) : view === "parameter" ? (
             <ParameterSettings onback={() => setView("dashboard")} />
-          ) : ( 
+          ) : (
             <>
               <div className="text-center mb-6">
                 <h2 className="text-3xl font-bold text-gray-800">

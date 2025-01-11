@@ -1,30 +1,46 @@
 "use client";
 
 import { useState } from "react";
+import checkPassword from "./action/checkPassword";
+import changePasswordAdmin from "./action/changePasswordAdmin";
 
 export default function AdminSettings({ onBack }) {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [storedPassword, setStoredPassword] = useState("admin123"); // Simulasi password lama
   const [showErrorPopup, setShowErrorPopup] = useState(false);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
 
-  const handleSave = () => {
-    if (oldPassword !== storedPassword) {
-      // Jika password lama salah
-      setShowErrorPopup(true);
-    } else {
-      // Jika password lama benar
-      setShowConfirmPopup(true);
+  const handleSave = async () => {
+    try {
+      // Call checkPassword and wait for the result
+      const isPasswordValid = await checkPassword(oldPassword);
+
+      if (!isPasswordValid) {
+        // Jika password lama salah (password invalid)
+        setShowErrorPopup(true);
+      } else {
+        // Jika password lama benar (password valid)
+        setShowConfirmPopup(true);
+      }
+    } catch (error) {
+      console.error("Error in handleSave:", error);
     }
   };
 
-  const confirmSave = () => {
-    // Simulasi update password
-    setStoredPassword(newPassword);
-    setShowConfirmPopup(false);
-    setOldPassword("");
-    setNewPassword("");
+  const confirmSave = async () => {
+    try {
+      const passwordUpdate = changePasswordAdmin(newPassword);
+
+      if (passwordUpdate) {
+        // Simulasi update password
+        setShowConfirmPopup(false);
+        setOldPassword("");
+        setNewPassword("");
+      }
+      // TODO: Notifikasi Berhasil + Error jika password tidak berhasil diupdate
+    } catch (error) {
+      console.error("Error in confirming: ", error);
+    }
   };
 
   const cancelSave = () => {
@@ -34,7 +50,9 @@ export default function AdminSettings({ onBack }) {
   return (
     <div className="max-h-screen flex flex-col items-center justify-start bg-gray-100 pt-10">
       <div className="bg-white p-8 rounded shadow-lg w-[400px]">
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">Change Password</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-900">
+          Change Password
+        </h1>
 
         <label className="block mb-2 text-gray-900">Old Password</label>
         <input
@@ -85,7 +103,9 @@ export default function AdminSettings({ onBack }) {
       {showErrorPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-[#222E43] p-6 rounded shadow-lg text-center">
-            <p className="mb-4 text-lg font-bold text-red-600">Password Lama Salah!</p>
+            <p className="mb-4 text-lg font-bold text-red-600">
+              Password Lama Salah!
+            </p>
             <button
               onClick={() => setShowErrorPopup(false)}
               className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
@@ -100,7 +120,9 @@ export default function AdminSettings({ onBack }) {
       {showConfirmPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-[#222E43] p-6 rounded shadow-lg text-center">
-            <p className="mb-4 text-lg font-bold">Are you sure you want to save?</p>
+            <p className="mb-4 text-lg font-bold">
+              Are you sure you want to save?
+            </p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={confirmSave}

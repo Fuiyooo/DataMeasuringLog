@@ -4,7 +4,6 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 
-
 class InvalidLoginError extends CredentialsSignin {
     code = "Invalid username or password";
 }
@@ -43,7 +42,7 @@ const authOptions = {
 
                     // Check if the user exists and the password is correct
                     if (user) {
-                        const isPasswordValid = bcrypt.compareSync(password, user.password);
+                        const isPasswordValid = await bcrypt.compare(password, user.password);
                         if (isPasswordValid) {
                             return { id: user.id, username: user.username, name: user.name, role: user.role };
                         } else {
@@ -74,7 +73,7 @@ const authOptions = {
     ],
     session: {
         jwt: true,
-        maxAge: 24 * 60 * 60, // 1 day
+        maxAge: 3 * 60 * 60, // 3 hours
     },
     callbacks: {
         async jwt({ token, user }) {
@@ -100,6 +99,4 @@ const authOptions = {
     secret: process.env.NEXTAUTH_SECRET
 };
 
-const { handlers } = NextAuth(authOptions);
-
-export { handlers, authOptions };
+export const { auth, handlers, signIn, signOut } = NextAuth(authOptions);

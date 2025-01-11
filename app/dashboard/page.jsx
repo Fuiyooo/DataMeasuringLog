@@ -4,12 +4,15 @@ import OperatorDashboard from "./pages/OperatorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import { useSession, signOut } from "next-auth/react";
 
-
 export default function Dashboard() {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return (
+      <div className="h-screen flex flex-col bg-gray-100 justify-items-center">
+        <p className="text-black text-center">Loading...</p>
+      </div>
+    );
   }
 
   if (status === "authenticated") {
@@ -20,7 +23,6 @@ export default function Dashboard() {
         </div>
       );
     } else if (session.role === "ADMIN") {
-
       return (
         <div>
           <AdminDashboard />
