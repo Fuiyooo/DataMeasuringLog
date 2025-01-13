@@ -38,14 +38,13 @@ export async function POST(req) {
         } else if (session.role === 'ADMIN' || session.role === 'DEVELOPER') {
             isAdmin = true;
         }
-
         // Parse request body
         const { action, oldPasswordInput, newPasswordInput } = await req.json(); // Extract action and user data
         if (isAdmin) {
             switch (action) {
                 case "check":
                     // check old password with stored password return true or false
-                    if (!session.user || session.role != 'ADMIN') {
+                    if (!session.user || (session.role !== 'ADMIN' && session.role !== 'DEVELOPER')) {
                         return new NextResponse(
                             JSON.stringify({ error: "Unauthorized" }),
                             { status: 403 }
@@ -64,7 +63,7 @@ export async function POST(req) {
 
                 case "update":
                     // Update an existing user
-                    if (!session.user || session.role != 'ADMIN' || session.role !== 'DEVELOPER') {
+                    if (!session.user || (session.role !== 'ADMIN' && session.role !== 'DEVELOPER')) {
                         return new NextResponse(
                             JSON.stringify({ error: "Unauthorized" }),
                             { status: 403 }

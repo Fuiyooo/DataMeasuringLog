@@ -14,15 +14,12 @@ export default function Login() {
   useEffect(() => {
     if (status === "authenticated") {
       // Cek role untuk menentukan arah dashboard
-      if (
-        session?.user?.role === "ADMIN" ||
-        session?.user?.role === "DEVELOPER"
-      ) {
-        router.push("/dashboard/admin");
-      } else if (session?.user?.role === "OPERATOR") {
-        router.push("/dashboard/operator");
+      if (session?.role === "ADMIN" || session?.role === "DEVELOPER") {
+        router.push("/dashboard/parameter");
+      } else if (session?.role === "OPERATOR") {
+        router.push("/dashboard/measurement");
       } else {
-        router.push("/dashboard");
+        router.push("/login");
       }
     }
   }, [status, session, router]);
@@ -40,12 +37,12 @@ export default function Login() {
       setError("Login gagal! Periksa kembali username dan password.");
     } else {
       // Redirect berdasarkan role setelah login
-      if (session?.user?.role === "ADMIN") {
-        router.push("/dashboard/admin");
-      } else if (session?.user?.role === "OPERATOR") {
-        router.push("/dashboard/operator");
+      if (session?.role === "ADMIN" || session?.role === "DEVELOPER") {
+        router.push("/dashboard/parameter");
+      } else if (session?.role === "OPERATOR") {
+        router.push("/dashboard/measurement");
       } else {
-        router.push("/dashboard");
+        router.push("/login");
       }
     }
   };

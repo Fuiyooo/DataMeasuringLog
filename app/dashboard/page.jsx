@@ -1,38 +1,34 @@
 "use client";
 
-import OperatorDashboard from "./pages/OperatorDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import Layout from "@/app/components/Layout";
 
-export default function Dashboard() {
+function page() {
   const { data: session, status } = useSession();
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState(null);
 
-  if (status === "loading") {
-    return (
-      <div className="h-screen flex flex-col bg-gray-100 justify-items-center">
-        <p className="text-black text-center">Loading...</p>
-      </div>
-    );
-  }
-
-  if (status === "authenticated") {
-    if (session.role === "OPERATOR") {
-      return (
-        <div>
-          <OperatorDashboard />
-        </div>
-      );
-    } else if (session.role === "ADMIN" || session.role === "DEVELOPER") {
-      return (
-        <div>
-          <AdminDashboard />
-        </div>
-      );
-    } else {
-      signOut();
-      return <div>Unauthorized</div>;
+  useEffect(() => {
+    if (status === "authenticated") {
+      // Cek role untuk menentukan arah dashboard
+      if (session?.role === "ADMIN" || session?.role === "DEVELOPER") {
+        router.push("/dashboard/parameter");
+      } else if (session?.role === "OPERATOR") {
+        router.push("/dashboard/measurement");
+      } else {
+        router.push("/login");
+      }
     }
-  }
-
-  return <div>Please log in</div>;
+  }, [status, session, router]);
+  return (
+    <div>
+      <Layout contents={<div>Loading...</div>} />
+    </div>
+  );
 }
+
+export default page;

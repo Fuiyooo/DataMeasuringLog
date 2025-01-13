@@ -1,28 +1,20 @@
-import React, { useState } from 'react';
+import React from "react";
 
-export default function ParameterSettings() {
-  const [numParameters, setNumParameters] = useState(12); // Jumlah parameter awal dan state
-
-  // Fungsi untuk menambah parameter
-  const addParameter = () => {
-    setNumParameters(numParameters + 1);
-  };
-
-  // Fungsi untuk mengurangi parameter
-  const removeParameter = () => {
-    if (numParameters > 1) {
-      setNumParameters(numParameters - 1);
-    }
-  };
-
+function Parameter({ props, addParameter, removeParameter, numParameters }) {
   return (
-    <div className="max-h-screen bg-gray-100 p-6">
+    <section>
       <div className="max-w-5xl mx-auto bg-white shadow-lg rounded-lg p-8">
         <div className="flex justify-between items-center mb-8">
-          <div className="flex-1 bg-gray-300 h-12 rounded"></div>
-          <div className="flex-1 bg-gray-300 h-12 rounded mx-2"></div>
-          <div className="flex-1 bg-gray-300 h-12 rounded mx-2"></div>
-          <div className="flex-1 bg-gray-300 h-12 rounded"></div>
+          <div className="flex-1 bg-gray-300 h-12 rounded">
+            <p className="text-gray-500 text-center">Barcode ID</p>
+          </div>
+          <div className="flex-1 bg-gray-300 h-12 rounded mx-2">
+            <p className="text-gray-500 text-center">Nama Barang</p>
+          </div>
+          <div className="flex-1 bg-gray-300 h-12 rounded mx-2">
+            <p className="text-gray-500 text-center">Type Barang</p>
+          </div>
+          <div className="flex-1 bg-gray-300 h-12 rounded "></div>
         </div>
 
         <div className="grid grid-cols-12 gap-4">
@@ -39,8 +31,18 @@ export default function ParameterSettings() {
             <ParameterInput numParameters={numParameters} />
 
             <div className="flex mt-6">
-              <button className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-700 mr-2" onClick={addParameter}>+</button>
-              <button className="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-700" onClick={removeParameter}>-</button>
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-700 mr-2"
+                onClick={addParameter}
+              >
+                +
+              </button>
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-700"
+                onClick={removeParameter}
+              >
+                -
+              </button>
             </div>
 
             <div className="mt-6">
@@ -64,11 +66,9 @@ export default function ParameterSettings() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
-
-
 
 function ParameterInput({ numParameters }) {
   return (
@@ -92,3 +92,5 @@ function ParameterInput({ numParameters }) {
     </div>
   );
 }
+
+export default Parameter;
