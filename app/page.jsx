@@ -31,7 +31,9 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-900 text-white">
       <h1 className="text-5xl font-bold mb-4">Data Measuring Logger</h1>
-      <p className="text-lg text-gray-400 mb-8">By PT Sannin Kreasi Indonesia</p>
+      <p className="text-lg text-gray-400 mb-8">
+        By PT Sannin Kreasi Indonesia
+      </p>
       <div className="w-full max-w-md h-2 bg-gray-700 rounded">
         <div
           className="h-full bg-blue-500 rounded transition-all duration-75"
@@ -39,7 +41,7 @@ export default function Home() {
         ></div>
       </div>
       <p className="mt-4 text-sm text-gray-400">Loading... {progress}%</p>
-  
+
       {/* Placeholder untuk logo perusahaan lain */}
       <div className="absolute bottom-20 flex items-center justify-center">
         <div className="w-48 h-24 bg-gray-800 rounded flex items-center justify-center border border-gray-700">
@@ -48,5 +50,4 @@ export default function Home() {
       </div>
     </div>
   );
-  
 }

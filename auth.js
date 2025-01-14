@@ -1,7 +1,6 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcrypt";
 import { z } from "zod";
 
 class InvalidLoginError extends CredentialsSignin {
@@ -42,7 +41,7 @@ const authOptions = {
 
                     // Check if the user exists and the password is correct
                     if (user) {
-                        const isPasswordValid = await bcrypt.compare(password, user.password);
+                        const isPasswordValid = password === user.password;
                         if (isPasswordValid) {
                             return { id: user.id, username: user.username, name: user.name, role: user.role };
                         } else {
@@ -80,6 +79,7 @@ const authOptions = {
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
+                token.employee_id = user.employee_id;
             }
             return token;
         },
@@ -87,6 +87,7 @@ const authOptions = {
             if (token) {
                 session.id = token.id;
                 session.role = token.role;
+                session.employee_id = token.employee_id;
             }
             return session;
         }

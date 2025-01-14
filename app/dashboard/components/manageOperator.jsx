@@ -147,7 +147,7 @@ export default function ManageOperator() {
         {!isAdding && !isEditing ? (
           <table className="w-full table-auto border-collapse border border-gray-300">
             <thead>
-              <tr className="bg-[#222E43] text-white">
+              <tr className="bg-[#8fcef23] text-white">
                 <th className="border border-gray-300 px-4 py-2 text-left">
                   No
                 </th>

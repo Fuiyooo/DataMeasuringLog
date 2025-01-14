@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, getSession } from "next-auth/react";
+import NavbarSidebar from "../SidebarNavbar"
 
 export default function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -43,70 +44,9 @@ export default function AdminDashboard() {
 
   return (
     <div className="h-screen flex bg-gray-100">
-      {/* Sidebar */}
-      <div
-        className={`fixed top-0 left-0 h-full bg-gray-800 text-white w-64 transform ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-in-out`}
-      >
-        <button
-          className="text-lg p-4 focus:outline-none"
-          onClick={toggleSidebar}
-        >
-          X
-        </button>
-        <nav className="flex flex-col mt-4">
-          <button
-            onClick={() => navigateTo("adminDashboard")}
-            className="p-4 text-left hover:bg-gray-700"
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={() => navigateTo("parameter")}
-            className="p-4 text-left hover:bg-gray-700"
-          >
-            Parameter
-          </button>
-          <button
-            onClick={() => navigateTo("manageOperator")}
-            className="p-4 text-left hover:bg-gray-700"
-          >
-            Manage Operator
-          </button>
-          <button
-            onClick={() => navigateTo("adminSettings")}
-            className="p-4 text-left hover:bg-gray-700"
-          >
-            Admin Settings
-          </button>
-          <button
-            onClick={() => signOut({ callbackUrl: "/" })}
-            className="p-4 text-left hover:bg-gray-700"
-          >
-            Log Out
-          </button>
-        </nav>
-      </div>
+      <div>
 
-      {/* Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header className="flex items-center justify-between bg-white p-4 shadow">
-          <button
-            className="text-2xl text-gray-800 focus:outline-none"
-            onClick={toggleSidebar}
-          >
-            ☰
-          </button>
-          <h1
-            className="text-gray-900 text-xl font-bold cursor-pointer"
-            onClick={() => navigateTo("adminDashboard")}
-          >
-            Admin Dashboard
-          </h1>
-          <p className="text-gray-500">{currentDate}</p>
-        </header>
+      </div>
 
         {/* Main Content */}
         <main className="flex-1 p-6 flex flex-col items-center justify-start mt-10">
@@ -143,6 +83,6 @@ export default function AdminDashboard() {
           </div>
         </main>
       </div>
-    </div>
+    
   );
 }

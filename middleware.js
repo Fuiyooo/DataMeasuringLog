@@ -5,7 +5,7 @@ export async function middleware(req) {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
     // Define the paths that require authentication
-    const protectedPaths = ['/dashboard', '/profile', '/settings'];
+    const protectedPaths = ['/dashboard'];
 
     // Check if the request is for a protected path
     const isProtectedPath = protectedPaths.some(path => req.nextUrl.pathname.startsWith(path));
@@ -20,5 +20,5 @@ export async function middleware(req) {
 }
 
 export const config = {
-    matcher: ['/dashboard/:path*', '/profile/:path*', '/settings/:path*'], // Define the paths to match
+    matcher: ['/dashboard/:path*'], // Define the paths to match
 };
