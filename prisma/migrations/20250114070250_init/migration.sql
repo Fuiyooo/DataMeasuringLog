@@ -1,13 +1,17 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE `User` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `employee_id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NULL,
+    `username` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(191) NOT NULL,
+    `role` ENUM('OPERATOR', 'ADMIN', 'DEVELOPER') NOT NULL DEFAULT 'OPERATOR',
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
 
-  - A unique constraint covering the columns `[employee_id]` on the table `User` will be added. If there are existing duplicate values, this will fail.
-  - Added the required column `employee_id` to the `User` table without a default value. This is not possible if the table is not empty.
-
-*/
--- AlterTable
-ALTER TABLE `user` ADD COLUMN `employee_id` VARCHAR(191) NOT NULL,
-    MODIFY `role` ENUM('OPERATOR', 'ADMIN', 'DEVELOPER') NOT NULL DEFAULT 'OPERATOR';
+    UNIQUE INDEX `User_employee_id_key`(`employee_id`),
+    UNIQUE INDEX `User_username_key`(`username`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
 CREATE TABLE `MeasurementItem` (
@@ -55,9 +59,6 @@ CREATE TABLE `ParameterValue` (
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateIndex
-CREATE UNIQUE INDEX `User_employee_id_key` ON `User`(`employee_id`);
 
 -- AddForeignKey
 ALTER TABLE `Parameter` ADD CONSTRAINT `Parameter_id_item_fkey` FOREIGN KEY (`id_item`) REFERENCES `MeasurementItem`(`id_item`) ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -1,9 +1,15 @@
 "use client";
 
+<<<<<<< HEAD
+import OperatorDashboard from "./components/OperatorDashboard";
+import AdminDashboard from "./components/AdminDashboard";
+import { useSession, signOut } from "next-auth/react";
+=======
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Layout from "@/app/components/Layout";
+>>>>>>> 4e741524a3352ffcd20b6b6f3fd1ec7088b2ae72
 
 function page() {
   const { data: session, status } = useSession();
@@ -23,6 +29,12 @@ function page() {
         router.push("/login");
       }
     }
+<<<<<<< HEAD
+  }
+
+  return <div>Please log in</div>;
+}
+=======
   }, [status, session, router]);
   return (
     <div>
@@ -32,3 +44,4 @@ function page() {
 }
 
 export default page;
+>>>>>>> 4e741524a3352ffcd20b6b6f3fd1ec7088b2ae72
