@@ -8,7 +8,7 @@ function Table({ datas, edit, remove, showConfirmPopup, confirmModal }) {
     <>
       <table className="w-full table-auto border-collapse border border-gray-300">
         <thead>
-          <tr className="bg-[#222E43] text-white">
+          <tr className="bg-[#8fcef2] text-black">
             <th className="border border-gray-300 px-4 py-2 text-left">ID</th>
             <th className="border border-gray-300 px-4 py-2 text-left">Nama</th>
             <th className="border border-gray-300 px-4 py-2 text-left">
