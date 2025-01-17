@@ -23,6 +23,7 @@ function Sidebar({ props, sidebarOpen, toggleSidebar, signOut, userRole }) {
             <ButtonNavigation refLink={"parameter"} />
             <ButtonNavigation refLink={"manage-operator"} />
             <ButtonNavigation refLink={"admin-settings"} />
+            <ButtonNavigation refLink={"manage-tools"} />
           </>
         ) : (
           <></>

@@ -15,7 +15,33 @@ function CurrentDate() {
     setCurrentDate(formattedDate);
   }, []);
 
-  return <p className="text-gray-500">{currentDate}</p>;
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval); // Cleanup interval on unmount
+  }, []);
+
+  return (
+    <div className="flex flex-col items-center justify-center text-gray-600 text-xl">
+      <div className="mb-2">
+        <p className="text-gray-600 text-bold font-semibold">Date: {currentDate}</p>
+      </div>
+      <div>
+        <p className="font-semibold">
+          Time: {time.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false, // Gunakan format 24 jam
+          })}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export default CurrentDate;
