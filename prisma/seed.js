@@ -12,7 +12,7 @@ async function main() {
         update: {},
         create: {
             username: 'operator',
-            employee_id: 'O001',
+            id_employee: 'O001',
             password: operatorPassword,
             name: 'Operator User',
             role: 'OPERATOR', // Set the role to OPERATOR
@@ -24,7 +24,7 @@ async function main() {
         update: {},
         create: {
             username: 'admin',
-            employee_id: 'A001',
+            id_employee: 'A001',
             password: adminPassword,
             name: 'Admin User',
             role: 'ADMIN', // Set the role to ADMIN
@@ -36,7 +36,7 @@ async function main() {
         update: {},
         create: {
             username: 'dev',
-            employee_id: 'D001',
+            id_employee: 'D001',
             password: devPassword,
             name: 'Developer',
             role: 'DEVELOPER', // Set the role to ADMIN

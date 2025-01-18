@@ -42,7 +42,9 @@ export async function POST(req) {
         const { action, userData } = await req.json(); // Extract action and user data
 
         if (isAdmin) {
+
             switch (action) {
+
                 case "read":
                     // Fetch users with 'OPERATOR' role
                     const operators = await prisma.user.findMany({
@@ -51,7 +53,7 @@ export async function POST(req) {
                         },
                         select: {
                             id: true,
-                            employee_id: true,
+                            id_employee: true,
                             name: true,
                             username: true,
                             password: true,
@@ -61,7 +63,7 @@ export async function POST(req) {
 
                 case "create":
                     // Create a new user
-                    if (!userData || !userData.employee_id || !userData.name || !userData.username || !userData.password) {
+                    if (!userData || !userData.id_employee || !userData.name || !userData.username || !userData.password) {
                         return new NextResponse(
                             JSON.stringify({ error: "Missing user data" }),
                             { status: 400 }
@@ -74,7 +76,7 @@ export async function POST(req) {
                         data: {
                             name: userData.name,
                             username: userData.username,
-                            employee_id: userData.employee_id,
+                            id_employee: userData.id_employee,
                             password: newPassword,
                             role: "OPERATOR", // Set the role to 'OPERATOR'
                         },
@@ -108,7 +110,7 @@ export async function POST(req) {
                         data: {
                             name: userData.name,
                             username: userData.username,
-                            employee_id: userData.employee_id,
+                            id_employee: userData.id_employee,
                             password: updatedPassword, // Use the updated password (either new or old)
                             role: "OPERATOR", // Ensure role is set as 'OPERATOR'
                         },
@@ -138,6 +140,7 @@ export async function POST(req) {
                     );
             }
         } else {
+
             switch (action) {
                 case "read":
                     // Fetch users with 'OPERATOR' role
@@ -147,7 +150,7 @@ export async function POST(req) {
                         },
                         select: {
                             id: true,
-                            employee_id: true,
+                            id_employee: true,
                             name: true,
                             username: true,
                             password: true,
@@ -157,7 +160,7 @@ export async function POST(req) {
 
                 case "create":
                     // Create a new user
-                    if (!userData || !userData.employee_id || !userData.name || !userData.username || !userData.password) {
+                    if (!userData || !userData.id_employee || !userData.name || !userData.username || !userData.password) {
                         return new NextResponse(
                             JSON.stringify({ error: "Missing user data" }),
                             { status: 400 }
@@ -170,13 +173,16 @@ export async function POST(req) {
                         data: {
                             name: userData.name,
                             username: userData.username,
-                            employee_id: userData.employee_id,
+                            id_employee: userData.id_employee,
                             password: newPassword,
                             role: "OPERATOR", // Set the role to 'OPERATOR'
                         },
                     });
 
                     return new NextResponse(JSON.stringify(newUser), { status: 201 });
+
+
+
 
                 default:
                     return new NextResponse(

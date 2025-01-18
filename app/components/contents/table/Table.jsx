@@ -9,15 +9,17 @@ function Table({ datas, edit, remove, showConfirmPopup, confirmModal }) {
       <table className="w-full table-auto border-collapse border border-gray-300">
         <thead>
           <tr className="bg-[#8fcef2] text-black">
-            <th className="border border-gray-300 px-4 py-2 text-left">ID</th>
-            <th className="border border-gray-300 px-4 py-2 text-left">Nama</th>
-            <th className="border border-gray-300 px-4 py-2 text-left">
+            <th className="border border-gray-300 px-4 py-2 text-center">ID</th>
+            <th className="border border-gray-300 px-4 py-2 text-center">
+              Nama
+            </th>
+            <th className="border border-gray-300 px-4 py-2 text-center">
               Username
             </th>
-            <th className="border border-gray-300 px-4 py-2 text-left">
+            <th className="border border-gray-300 px-4 py-2 text-center">
               Password
             </th>
-            <th className="border border-gray-300 px-4 py-2 text-left">
+            <th className="border border-gray-300 px-4 py-2 text-center">
               Actions
             </th>
           </tr>
@@ -26,7 +28,7 @@ function Table({ datas, edit, remove, showConfirmPopup, confirmModal }) {
           {datas.map((data, index) => (
             <tr key={data.id} className="text-gray-700">
               <td className="border border-gray-300 px-4 py-2">
-                {data.employee_id}
+                {data.id_employee}
               </td>
               <td className="border border-gray-300 px-4 py-2">{data.name}</td>
               <td className="border border-gray-300 px-4 py-2">
@@ -36,7 +38,7 @@ function Table({ datas, edit, remove, showConfirmPopup, confirmModal }) {
                 {data.password}
               </td>
               <td className="border border-gray-300 ">
-                <div className="flex px-4 py-2 gap-2">
+                <div className="flex px-4 py-2 gap-2 justify-center">
                   <Button
                     title="Edit"
                     go={() => edit(data)}

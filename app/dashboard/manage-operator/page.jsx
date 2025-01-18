@@ -25,7 +25,7 @@ function page() {
   const [newOperator, setNewOperator] = useState({
     name: "",
     username: "",
-    employee_id: "",
+    id_employee: "",
     password: "",
   });
 
@@ -157,8 +157,8 @@ function page() {
       <Layout
         activePage={activePage}
         contents={
-          <div className="flex flex-col items-center">
-            <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
+          <div className="w-full flex flex-col items-center">
+            <div className="w-full bg-white rounded-lg shadow-lg p-6">
               <div className="flex justify-between items-center mb-4">
                 {!isAdding && !isEditing && (
                   <>
@@ -248,12 +248,12 @@ function page() {
                       />
                       <Input
                         title="ID Employee"
-                        name="employee_id"
+                        name="id_employee"
                         type="text"
                         value={
                           isEditing
-                            ? editOperator.employee_id
-                            : newOperator.employee_id
+                            ? editOperator.id_employee
+                            : newOperator.id_employee
                         }
                         handleChange={handleChange}
                         placeholder="ID Employee"

@@ -41,6 +41,8 @@ export async function POST(req) {
         // Parse request body
         const { action, oldPasswordInput, newPasswordInput } = await req.json(); // Extract action and user data
         if (isAdmin) {
+            const userID = parseInt(session.id, 10);
+
             switch (action) {
                 case "check":
                     // check old password with stored password return true or false
@@ -50,11 +52,10 @@ export async function POST(req) {
                             { status: 403 }
                         );
                     }
-                    const userId = parseInt(session.id, 10);
 
                     // Fetch the current user data to keep the old password if no new password is provided
                     const currentUserCheck = await prisma.user.findUnique({
-                        where: { id: userId },
+                        where: { id: userID },
                         select: { password: true },
                     });
 
@@ -70,7 +71,6 @@ export async function POST(req) {
                         );
                     }
 
-                    const userID = parseInt(session.id, 10);
 
                     let updatedPassword = newPasswordInput;
 
@@ -88,6 +88,7 @@ export async function POST(req) {
 
                     // return true or false based on the result
                     return new NextResponse(String(!!updatedUser), { status: 200 });
+
 
                 default:
                     return new NextResponse(

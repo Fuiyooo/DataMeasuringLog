@@ -25,7 +25,7 @@ function Layout({ activePage, contents }) {
   };
 
   return (
-    <div className="min-h-screen flex-grow flex flex-col bg-gray-100 text-black">
+    <div className="min-h-screen overflow-auto flex-grow flex flex-col bg-gray-100 text-black">
       <Navbar toggleSidebar={toggleSidebar} activePage={activePage} />
       <Sidebar
         userRole={userRole}

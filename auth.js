@@ -18,7 +18,7 @@ const prisma = new PrismaClient();
 
 const signInSchema = z.object({
     username: z.string(),
-    password: z.string().min(6, { message: "Password must be at least 6 characters long" })
+    password: z.string().min(1, { message: "Password must be filled" })
 });
 
 const authOptions = {
@@ -79,7 +79,7 @@ const authOptions = {
             if (user) {
                 token.id = user.id;
                 token.role = user.role;
-                token.employee_id = user.employee_id;
+                token.id_employee = user.id_employee;
             }
             return token;
         },
@@ -87,7 +87,7 @@ const authOptions = {
             if (token) {
                 session.id = token.id;
                 session.role = token.role;
-                session.employee_id = token.employee_id;
+                session.id_employee = token.id_employee;
             }
             return session;
         }

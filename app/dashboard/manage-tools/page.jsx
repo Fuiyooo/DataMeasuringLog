@@ -9,6 +9,12 @@ import BigModal from "@/app/components/contents/BigModal";
 import Button from "@/app/components/smallcomponents/Button";
 import Input from "@/app/components/smallcomponents/Input";
 
+// Functions
+import getTools from "@/app/components/contents/functions/getTools";
+import createTool from "@/app/components/contents/functions/createTool";
+import removeTool from "@/app/components/contents/functions/removeTool";
+import updateTool from "@/app/components/contents/functions/updateTool";
+
 function page() {
   const activePage = "Manage Tools";
   const [isAdding, setIsAdding] = useState(false);
@@ -18,19 +24,50 @@ function page() {
     name: "",
   });
 
-  const tools = [
-    { id: 1, name: "Hammer" },
-    { id: 2, name: "Screwdriver" },
-    { id: 3, name: "Wrench" },
-  ];
+  const [tools, setTools] = useState([]);
+
+  // Fetch tools saat komponen pertama kali di-render
+  useEffect(() => {
+    const fetchTools = async () => {
+      const data = await getTools(); // Mengambil data Tools
+      setTools(data);
+    };
+
+    fetchTools();
+  }, []);
 
   const handleEdit = (tool) => {
     setEditTool(tool);
     setIsEditing(true);
   };
 
-  const handleRemove = (tool) => {
-    console.log("Remove tool:", tool);
+  const handleEditSubmit = async (tool) => {
+    try {
+      const updatedTool = await updateTool(tool);
+      setTools((prev) =>
+        prev.map((t) => (t.id === updatedTool.id ? updatedTool : t))
+      );
+    } catch (error) {
+      console.error("Error updating tool:", error);
+    }
+  };
+
+  const handleAddSubmit = async (data) => {
+    try {
+      const newTool = await createTool(data);
+      setTools((prev) => [...prev, newTool]);
+    } catch (error) {
+      console.error("Error adding tool:", error);
+    }
+  };
+
+  const handleRemove = async (data) => {
+    try {
+      await removeTool(data);
+      setTools((prev) => prev.filter((t) => t.id !== data.id));
+    } catch (error) {
+      console.error("Error removing tool:", error);
+    }
   };
 
   return (
@@ -107,11 +144,11 @@ function page() {
                         textColor="text-white"
                         go={() => {
                           if (isEditing) {
-                            console.log("Updated tool:", editTool);
                             setIsEditing(false);
+                            handleEditSubmit(editTool);
                           } else {
-                            console.log("Added tool:", newTool);
                             setIsAdding(false);
+                            handleAddSubmit(newTool);
                           }
                         }}
                       />

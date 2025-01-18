@@ -31,7 +31,7 @@ export default function BigModal({
       <div
         className={`bg-white ${padding ? padding : "p-8"} rounded ${
           shadow ? "shadow-lg" : ""
-        } w-[400px]`}
+        } w-full`}
       >
         {onSubmit ? (
           <form onSubmit={onSubmit} ref={formRef}>
