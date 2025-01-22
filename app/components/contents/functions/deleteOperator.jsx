@@ -19,13 +19,13 @@ export default async function deleteOperator(operator) {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch operators");
+      throw new Error("Failed to delete operator");
     }
 
     const operators = await response.json();
     return operators;
   } catch (error) {
-    console.error("Error fetching operators:", error);
+    console.error("Error deleting operator:", error);
     return [];
   }
 }
