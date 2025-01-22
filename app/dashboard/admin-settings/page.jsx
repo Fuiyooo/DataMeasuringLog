@@ -223,7 +223,7 @@ function page() {
                         handleChange={handleChange}
                       />
                       <Input
-                        title="ID Employee"
+                        title="ID Admin"
                         name="id_employee"
                         type="text"
                         value={
