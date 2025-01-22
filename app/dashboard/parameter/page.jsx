@@ -3,7 +3,7 @@
 import React, { useState, Suspense, lazy, useEffect } from "react";
 
 // Components
-import Layout from "@/app/components/layout";
+import Layout from "@/app/components/Layout";
 const Parameter = lazy(() => import("@/app/components/contents/Parameter"));
 
 // Functions
