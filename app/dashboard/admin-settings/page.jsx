@@ -1,141 +1,264 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, Suspense } from "react";
 
 // Components
 import Layout from "@/app/components/layout";
+import Table from "@/app/components/contents/table/Table";
 import BigModal from "@/app/components/contents/BigModal";
-import SmallModal from "@/app/components/contents/SmallModal";
-import Input from "@/app/components/smallcomponents/Input";
 import Button from "@/app/components/smallcomponents/Button";
+import Input from "@/app/components/smallcomponents/Input";
+import SmallModal from "@/app/components/contents/SmallModal";
 
 // Functions
-import checkPassword from "@/app/components/contents/functions/checkPassword";
-import changePasswordAdmin from "@/app/components/contents/functions/changePasswordAdmin";
+// import getAdmins from "@/app/components/contents/functions/getAdmins";
+// import createAdmin from "@/app/components/contents/functions/createAdmin";
+// import updateAdmin from "@/app/components/contents/functions/updateAdmin";
+// import deleteAdmin from "@/app/components/contents/functions/deleteAdmin";
 
 function page() {
-  const activePage = "Admin Settings";
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [showErrorPopup, setShowErrorPopup] = useState(false);
-  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+  const activePage = "Manage Admin";
+  const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editAdmin, setEditAdmin] = useState(null);
+  const [admins, setAdmins] = useState([]);
+  const [newAdmin, setNewAdmin] = useState({
+    name: "",
+    username: "",
+    id_employee: "",
+    password: "",
+  });
 
-  const handleSave = async () => {
-    try {
-      // Call checkPassword and wait for the result
-      const isPasswordValid = await checkPassword(oldPassword);
-      if (!isPasswordValid) {
-        // Jika password lama salah (password invalid)
-        setShowErrorPopup(true);
-      } else {
-        // Jika password lama benar (password valid)
-        setShowConfirmPopup(true);
-      }
-    } catch (error) {
-      console.error("Error in handleSave:", error);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [showConfirmAdd, setShowConfirmAdd] = useState(false);
+  const [showConfirmUpdate, setShowConfirmUpdate] = useState(false);
+  const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const formRef = useRef(null);
+
+  // Fetch admins on initial render
+  useEffect(() => {
+    const fetchAdmins = async () => {
+      const data = await getAdmins();
+      setAdmins(data);
+    };
+
+    fetchAdmins();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (isEditing) {
+      setEditAdmin((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    } else {
+      setNewAdmin((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
-  const confirmSave = async () => {
-    try {
-      const passwordUpdate = changePasswordAdmin(newPassword);
-      if (passwordUpdate) {
-        // Simulasi update password
-        setShowConfirmPopup(false);
-        setOldPassword("");
-        setNewPassword("");
-      }
-      // TODO: Notifikasi Berhasil + Error jika password tidak berhasil diupdate
-    } catch (error) {
-      console.error("Error in confirming: ", error);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (formRef.current.checkValidity()) {
+      setShowConfirmAdd(true);
+    } else {
+      formRef.current.reportValidity();
     }
   };
 
-  const cancelSave = () => {
-    setShowConfirmPopup(false);
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    if (formRef.current.checkValidity()) {
+      setShowConfirmUpdate(true);
+    } else {
+      formRef.current.reportValidity();
+    }
+  };
+
+  const confirmAdd = async () => {
+    try {
+      await createAdmin(newAdmin);
+      setAdmins((prev) => [...prev, { ...newAdmin }]);
+      setNewAdmin({ name: "", username: "", password: "", id_employee: "" });
+      setIsAdding(false);
+      setShowConfirmAdd(false);
+    } catch (error) {
+      console.error("Error adding admin:", error);
+    }
+  };
+
+  const confirmUpdate = async () => {
+    try {
+      await updateAdmin(editAdmin);
+      setAdmins((prev) =>
+        prev.map((admin) =>
+          admin.id === editAdmin.id ? editAdmin : admin
+        )
+      );
+      setIsEditing(false);
+      setEditAdmin(null);
+      setShowConfirmUpdate(false);
+    } catch (error) {
+      console.error("Error updating admin:", error);
+    }
+  };
+
+  const handleEdit = (admin) => {
+    setEditAdmin(admin);
+    setIsEditing(true);
+  };
+
+  const handleRemove = (admin) => {
+    setSelectedAdmin(admin);
+    setShowConfirm(true);
+  };
+
+  const confirmRemove = async () => {
+    try {
+      await deleteAdmin(selectedAdmin);
+      setAdmins((prev) =>
+        prev.filter((admin) => admin.id !== selectedAdmin.id)
+      );
+      setShowConfirm(false);
+      setSelectedAdmin(null);
+    } catch (error) {
+      console.error("Error deleting admin:", error);
+    }
+  };
+
+  const cancelAction = () => {
+    setShowConfirm(false);
+    setShowConfirmAdd(false);
+    setShowConfirmUpdate(false);
+    setSelectedAdmin(null);
   };
 
   return (
-    <div>
+    <div className="flex overflow-x-auto">
       <Layout
         activePage={activePage}
         contents={
-          <BigModal
-            title="Change Password"
-            props={
-              <>
-                <Input
-                  title="Old Password"
-                  type="password"
-                  value={oldPassword}
-                  set={setOldPassword}
-                  placeholder="Enter Old Password"
-                />
-                <Input
-                  title="New Password"
-                  type="password"
-                  value={newPassword}
-                  set={setNewPassword}
-                  placeholder="Enter New Password"
-                />
-              </>
-            }
-            buttons={
-              <>
-                <Button
-                  title="Save"
-                  bgColor="bg-green-500"
-                  hoverBgColor="bg-green-600"
-                  textColor="text-white"
-                  go={handleSave}
-                />
-              </>
-            }
-            confirmModal={
-              <SmallModal
-                title="Are you sure you want to save?"
-                buttons={
+          <div className="w-full flex flex-col items-center">
+            <div className="w-full bg-white rounded-lg shadow-lg p-6">
+              <div className="flex justify-between items-center mb-4">
+                {!isAdding && !isEditing && (
                   <>
+                    <h1 className="text-xl font-bold text-gray-800">
+                      Admin List
+                    </h1>
                     <Button
-                      title="Cancel"
-                      bgColor="bg-red-500"
-                      hoverBgColor="bg-red-600"
-                      textColor="text-white"
-                      go={cancelSave}
-                    />
-                    <Button
-                      title="Save"
+                      title="Add Admin"
+                      go={() => setIsAdding(true)}
                       bgColor="bg-green-500"
                       hoverBgColor="bg-green-600"
                       textColor="text-white"
-                      go={confirmSave}
                     />
                   </>
-                }
-              />
-            }
-            errorModal={
-              <SmallModal
-                title=" Password Lama Salah!"
-                textColor="text-red-600"
-                buttons={
-                  <Button
-                    title="OK"
-                    go={() => setShowErrorPopup(false)}
-                    bgColor="bg-red-500"
-                    hoverBgColor="bg-red-600"
-                    textColor="text-white"
+                )}
+              </div>
+
+              {!isAdding && !isEditing ? (
+                <Suspense fallback={<div>Loading Table...</div>}>
+                  <Table
+                    datas={admins}
+                    edit={handleEdit}
+                    remove={handleRemove}
+                    showConfirmPopup={
+                      showConfirm || showConfirmAdd || showConfirmUpdate
+                    }
+                    confirmModal={
+                      <SmallModal
+                        title="Are you sure want to remove?"
+                        buttons={
+                          <>
+                            <Button
+                              title="Cancel"
+                              bgColor="bg-red-500"
+                              hoverBgColor="bg-red-600"
+                              textColor="text-white"
+                              go={cancelAction}
+                            />
+                            <Button
+                              title="Confirm"
+                              bgColor="bg-green-500"
+                              hoverBgColor="bg-green-600"
+                              textColor="text-white"
+                              go={confirmRemove}
+                            />
+                          </>
+                        }
+                      />
+                    }
                   />
-                }
-              />
-            }
-            showConfirmPopup={showConfirmPopup}
-            setShowConfirmPopup={setShowConfirmPopup}
-            setShowErrorPopup={setShowErrorPopup}
-            showErrorPopup={showErrorPopup}
-            shadow={true}
-            backBtn={true}
-          />
+                </Suspense>
+              ) : (
+                <BigModal
+                  title={isEditing ? "Edit Admin" : "Add Admin"}
+                  props={
+                    <>
+                      <Input
+                        title="Name"
+                        name="name"
+                        type="text"
+                        value={isEditing ? editAdmin.name : newAdmin.name}
+                        handleChange={handleChange}
+                      />
+                      <Input
+                        title="Username"
+                        name="username"
+                        type="text"
+                        value={isEditing ? editAdmin.username : newAdmin.username}
+                        handleChange={handleChange}
+                      />
+                      <Input
+                        title="ID Employee"
+                        name="id_employee"
+                        type="text"
+                        value={
+                          isEditing
+                            ? editAdmin.id_employee
+                            : newAdmin.id_employee
+                        }
+                        handleChange={handleChange}
+                      />
+                      <Input
+                        title="Password"
+                        name="password"
+                        type="password"
+                        value={isEditing ? editAdmin.password : newAdmin.password}
+                        handleChange={handleChange}
+                      />
+                    </>
+                  }
+                  buttons={
+                    <>
+                      <Button
+                        title="Cancel"
+                        bgColor="bg-red-500"
+                        hoverBgColor="bg-red-600"
+                        textColor="text-white"
+                        go={() => {
+                          setIsAdding(false);
+                          setIsEditing(false);
+                        }}
+                      />
+                      <Button
+                        type="submit"
+                        title={isEditing ? "Update" : "Add"}
+                        bgColor="bg-green-500"
+                        hoverBgColor="bg-green-600"
+                        textColor="text-white"
+                        go={isEditing ? handleEditSubmit : handleSubmit}
+                      />
+                    </>
+                  }
+                />
+              )}
+            </div>
+          </div>
         }
       />
     </div>

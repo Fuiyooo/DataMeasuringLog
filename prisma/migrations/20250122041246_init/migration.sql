@@ -30,7 +30,7 @@ CREATE TABLE `MeasurementItem` (
 CREATE TABLE `Parameter` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `id_item` VARCHAR(191) NOT NULL,
-    `tool_name` VARCHAR(191) NOT NULL,
+    `id_tool` INTEGER NOT NULL,
     `unit` VARCHAR(191) NOT NULL,
     `minValue` DOUBLE NOT NULL,
     `maxValue` DOUBLE NOT NULL,
@@ -61,8 +61,20 @@ CREATE TABLE `ParameterValue` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `Tools` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `Parameter` ADD CONSTRAINT `Parameter_id_item_fkey` FOREIGN KEY (`id_item`) REFERENCES `MeasurementItem`(`id_item`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Parameter` ADD CONSTRAINT `Parameter_id_tool_fkey` FOREIGN KEY (`id_tool`) REFERENCES `Tools`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Item` ADD CONSTRAINT `Item_id_barcode_fkey` FOREIGN KEY (`id_barcode`) REFERENCES `MeasurementItem`(`id_item`) ON DELETE CASCADE ON UPDATE CASCADE;
