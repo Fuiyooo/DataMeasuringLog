@@ -11,10 +11,10 @@ import Input from "@/app/components/smallcomponents/Input";
 import SmallModal from "@/app/components/contents/SmallModal";
 
 // Functions
-// import getAdmins from "@/app/components/contents/functions/getAdmins";
-// import createAdmin from "@/app/components/contents/functions/createAdmin";
-// import updateAdmin from "@/app/components/contents/functions/updateAdmin";
-// import deleteAdmin from "@/app/components/contents/functions/deleteAdmin";
+import getAdmins from "@/app/components/contents/functions/getAdmins";
+import createAdmin from "@/app/components/contents/functions/createAdmin";
+import updateAdmin from "@/app/components/contents/functions/updateAdmin";
+import deleteAdmin from "@/app/components/contents/functions/deleteAdmin";
 
 function page() {
   const activePage = "Manage Admin";
@@ -94,9 +94,7 @@ function page() {
     try {
       await updateAdmin(editAdmin);
       setAdmins((prev) =>
-        prev.map((admin) =>
-          admin.id === editAdmin.id ? editAdmin : admin
-        )
+        prev.map((admin) => (admin.id === editAdmin.id ? editAdmin : admin))
       );
       setIsEditing(false);
       setEditAdmin(null);
@@ -210,7 +208,9 @@ function page() {
                         title="Username"
                         name="username"
                         type="text"
-                        value={isEditing ? editAdmin.username : newAdmin.username}
+                        value={
+                          isEditing ? editAdmin.username : newAdmin.username
+                        }
                         handleChange={handleChange}
                       />
                       <Input
@@ -228,11 +228,51 @@ function page() {
                         title="Password"
                         name="password"
                         type="password"
-                        value={isEditing ? editAdmin.password : newAdmin.password}
+                        value={
+                          isEditing ? editAdmin.password : newAdmin.password
+                        }
                         handleChange={handleChange}
+                        require={isEditing ? false : true}
                       />
                     </>
                   }
+                  confirmModal={
+                    <SmallModal
+                      title={
+                        showConfirmAdd
+                          ? "Are you sure want to add this operator?"
+                          : showConfirmUpdate
+                          ? "Are you sure want to update this operator?"
+                          : ""
+                      }
+                      buttons={
+                        <>
+                          <Button
+                            title="Cancel"
+                            bgColor="bg-red-500"
+                            hoverBgColor="bg-red-600"
+                            textColor="text-white"
+                            go={cancelAction}
+                          />
+                          <Button
+                            title="Confirm"
+                            bgColor="bg-green-500"
+                            hoverBgColor="bg-green-600"
+                            textColor="text-white"
+                            go={
+                              showConfirm
+                                ? confirmRemove
+                                : showConfirmAdd
+                                ? confirmAdd
+                                : confirmUpdate
+                            }
+                          />
+                        </>
+                      }
+                      textColor="text-white"
+                    />
+                  }
+                  errorModal={<>ErrorModal</>}
                   buttons={
                     <>
                       <Button
@@ -255,6 +295,11 @@ function page() {
                       />
                     </>
                   }
+                  showConfirmPopup={
+                    showConfirm || showConfirmAdd || showConfirmUpdate
+                  }
+                  formRef={formRef}
+                  onSubmit={isEditing ? handleEditSubmit : handleSubmit}
                 />
               )}
             </div>
