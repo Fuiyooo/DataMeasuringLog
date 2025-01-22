@@ -83,6 +83,9 @@ function page() {
       await createAdmin(newAdmin);
       setAdmins((prev) => [...prev, { ...newAdmin }]);
       setNewAdmin({ name: "", username: "", password: "", id_employee: "" });
+
+      window.location.reload(); // refresh page
+
       setIsAdding(false);
       setShowConfirmAdd(false);
     } catch (error) {
@@ -96,6 +99,9 @@ function page() {
       setAdmins((prev) =>
         prev.map((admin) => (admin.id === editAdmin.id ? editAdmin : admin))
       );
+
+      window.location.reload(); // refresh page
+
       setIsEditing(false);
       setEditAdmin(null);
       setShowConfirmUpdate(false);
@@ -120,6 +126,9 @@ function page() {
       setAdmins((prev) =>
         prev.filter((admin) => admin.id !== selectedAdmin.id)
       );
+
+      window.location.reload(); // refresh page
+
       setShowConfirm(false);
       setSelectedAdmin(null);
     } catch (error) {

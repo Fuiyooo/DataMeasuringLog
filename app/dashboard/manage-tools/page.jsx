@@ -47,6 +47,8 @@ function page() {
       setTools((prev) =>
         prev.map((t) => (t.id === updatedTool.id ? updatedTool : t))
       );
+
+      window.location.reload(); // refresh page
     } catch (error) {
       console.error("Error updating tool:", error);
     }
@@ -56,6 +58,8 @@ function page() {
     try {
       const newTool = await createTool(data);
       setTools((prev) => [...prev, newTool]);
+
+      window.location.reload(); // refresh page
     } catch (error) {
       console.error("Error adding tool:", error);
     }
@@ -65,6 +69,8 @@ function page() {
     try {
       await removeTool(data);
       setTools((prev) => prev.filter((t) => t.id !== data.id));
+
+      window.location.reload(); // refresh page
     } catch (error) {
       console.error("Error removing tool:", error);
     }

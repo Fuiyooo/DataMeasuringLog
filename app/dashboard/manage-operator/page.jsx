@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, Suspense } from "react";
 
 // Components
-import Layout from "@/app/components/layout";
+import Layout from "@/app/components/Layout";
 import Table from "@/app/components/contents/table/Table";
 import BigModal from "@/app/components/contents/BigModal";
 import Button from "@/app/components/smallcomponents/Button";
@@ -23,6 +23,7 @@ function page() {
   const [editOperator, setEditOperator] = useState(null);
   const [operators, setOperators] = useState([]);
   const [newOperator, setNewOperator] = useState({
+    id: "",
     name: "",
     username: "",
     id_employee: "",
@@ -83,13 +84,15 @@ function page() {
 
   // Konfirmasi penambahan operator
   const confirmAdd = async () => {
-    const newId = operators.length + 1;
     try {
-      await createOperator(newOperator);
+      const newAddedOperator = await createOperator(newOperator);
 
-      setOperators((prev) => [...prev, { id: newId, ...newOperator }]);
-
-      setNewOperator({ name: "", username: "", password: "" });
+      setOperators((prev) => [
+        ...prev,
+        { id: newAddedOperator.id, ...newOperator },
+      ]);
+      window.location.reload(); // refresh page
+      setNewOperator({ id: "", name: "", username: "", password: "" });
       setIsAdding(false);
       setShowConfirmAdd(false); // Sembunyikan confirmation box
     } catch (error) {
@@ -107,6 +110,8 @@ function page() {
           operator.id === editOperator.id ? editOperator : operator
         )
       );
+
+      window.location.reload(); // refresh page
 
       setIsEditing(false);
       setEditOperator(null);
@@ -136,6 +141,7 @@ function page() {
       setOperators((prev) =>
         prev.filter((operator) => operator.id !== selectedOperator.id)
       );
+      window.location.reload(); // refresh page
 
       setShowConfirm(false);
       setSelectedOperator(null);

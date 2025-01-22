@@ -82,6 +82,7 @@ export async function POST(req) {
                         },
                     });
 
+
                     return new NextResponse(JSON.stringify(newUser), { status: 201 });
 
                 case "update":
