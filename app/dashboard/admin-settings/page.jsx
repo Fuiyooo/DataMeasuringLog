@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useRef, useEffect, Suspense } from "react";
+import React, { useState, useRef, useEffect, Suspense, lazy } from "react";
 
 // Components
 import Layout from "@/app/components/Layout";
-import Table from "@/app/components/contents/table/Table";
+const Table = lazy(() => import("@/app/components/contents/table/Table"));
 import BigModal from "@/app/components/contents/BigModal";
 import Button from "@/app/components/smallcomponents/Button";
 import Input from "@/app/components/smallcomponents/Input";
