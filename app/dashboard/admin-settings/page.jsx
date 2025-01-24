@@ -3,12 +3,14 @@
 import React, { useState, useRef, useEffect, Suspense, lazy } from "react";
 
 // Components
-import Layout from "@/app/components/Layout";
+import Layout from "@/app/components/layout";
 const Table = lazy(() => import("@/app/components/contents/table/Table"));
 import BigModal from "@/app/components/contents/BigModal";
 import Button from "@/app/components/smallcomponents/Button";
 import Input from "@/app/components/smallcomponents/Input";
 import SmallModal from "@/app/components/contents/SmallModal";
+import Notification from "@/app/components/smallcomponents/Notification";
+
 
 // Functions
 import getAdmins from "@/app/components/contents/functions/getAdmins";
@@ -34,6 +36,13 @@ function page() {
   const [showConfirmUpdate, setShowConfirmUpdate] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const formRef = useRef(null);
+
+
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = (message, type = "info") => {
+    setNotification({ message, type });
+  };
 
   // Fetch admins on initial render
   useEffect(() => {
@@ -88,7 +97,9 @@ function page() {
 
       setIsAdding(false);
       setShowConfirmAdd(false);
+      showNotification("Admin added successfully", "success");
     } catch (error) {
+      showNotification("Error adding admin", "error");
       console.error("Error adding admin:", error);
     }
   };
@@ -105,7 +116,9 @@ function page() {
       setIsEditing(false);
       setEditAdmin(null);
       setShowConfirmUpdate(false);
+      showNotification("Admin updated successfully", "successs");
     } catch (error) {
+      showNotification("Error updating admin", "error");
       console.error("Error updating admin:", error);
     }
   };
@@ -131,7 +144,9 @@ function page() {
 
       setShowConfirm(false);
       setSelectedAdmin(null);
+      showNotification("Admin deleted successfully", "success");
     } catch (error) {
+      showNotification("Error deleting admin", "error");
       console.error("Error deleting admin:", error);
     }
   };
@@ -150,6 +165,13 @@ function page() {
         contents={
           <div className="w-full flex flex-col items-center">
             <div className="w-full bg-white rounded-lg shadow-lg p-6">
+              {notification && (
+                <Notification
+                  message={notification.message}
+                  type={notification.type}
+                  onClose={() => setNotification(null)}
+                  />
+              )}
               <div className="flex justify-between items-center mb-4">
                 {!isAdding && !isEditing && (
                   <>
