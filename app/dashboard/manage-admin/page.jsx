@@ -3,14 +3,13 @@
 import React, { useState, useRef, useEffect, Suspense, lazy } from "react";
 
 // Components
-import Layout from "@/app/components/layout";
+import Layout from "@/app/components/Layout";
 const Table = lazy(() => import("@/app/components/contents/table/Table"));
 import BigModal from "@/app/components/contents/BigModal";
 import Button from "@/app/components/smallcomponents/Button";
 import Input from "@/app/components/smallcomponents/Input";
 import SmallModal from "@/app/components/contents/SmallModal";
 import Notification from "@/app/components/smallcomponents/Notification";
-
 
 // Functions
 import getAdmins from "@/app/components/contents/functions/getAdmins";
@@ -20,14 +19,15 @@ import deleteAdmin from "@/app/components/contents/functions/deleteAdmin";
 
 function page() {
   const activePage = "Manage Admin";
+  const [refresh, setRefresh] = useState(0);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editAdmin, setEditAdmin] = useState(null);
   const [admins, setAdmins] = useState([]);
   const [newAdmin, setNewAdmin] = useState({
     name: "",
-    username: "",
     id_employee: "",
+    username: "",
     password: "",
   });
 
@@ -35,10 +35,8 @@ function page() {
   const [showConfirmAdd, setShowConfirmAdd] = useState(false);
   const [showConfirmUpdate, setShowConfirmUpdate] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
-  const formRef = useRef(null);
-
-
   const [notification, setNotification] = useState(null);
+  const formRef = useRef(null);
 
   const showNotification = (message, type = "info") => {
     setNotification({ message, type });
@@ -52,7 +50,7 @@ function page() {
     };
 
     fetchAdmins();
-  }, []);
+  }, [refresh]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,38 +86,31 @@ function page() {
   };
 
   const confirmAdd = async () => {
-    try {
-      await createAdmin(newAdmin);
-      setAdmins((prev) => [...prev, { ...newAdmin }]);
-      setNewAdmin({ name: "", username: "", password: "", id_employee: "" });
+    const respond = await createAdmin(newAdmin);
+    setRefresh((prev) => prev + 1);
 
-      window.location.reload(); // refresh page
-
-      setIsAdding(false);
-      setShowConfirmAdd(false);
-      showNotification("Admin added successfully", "success");
-    } catch (error) {
-      showNotification("Error adding admin", "error");
-      console.error("Error adding admin:", error);
+    setNewAdmin({ name: "", id_employee: "", username: "", password: "" });
+    setIsAdding(false);
+    setShowConfirmAdd(false);
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
   const confirmUpdate = async () => {
-    try {
-      await updateAdmin(editAdmin);
-      setAdmins((prev) =>
-        prev.map((admin) => (admin.id === editAdmin.id ? editAdmin : admin))
-      );
+    const respond = await updateAdmin(editAdmin);
+    console.log(respond);
+    setRefresh((prev) => prev + 1);
 
-      window.location.reload(); // refresh page
-
-      setIsEditing(false);
-      setEditAdmin(null);
-      setShowConfirmUpdate(false);
-      showNotification("Admin updated successfully", "successs");
-    } catch (error) {
-      showNotification("Error updating admin", "error");
-      console.error("Error updating admin:", error);
+    setIsEditing(false);
+    setEditAdmin(null);
+    setShowConfirmUpdate(false);
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
@@ -134,20 +125,14 @@ function page() {
   };
 
   const confirmRemove = async () => {
-    try {
-      await deleteAdmin(selectedAdmin);
-      setAdmins((prev) =>
-        prev.filter((admin) => admin.id !== selectedAdmin.id)
-      );
-
-      window.location.reload(); // refresh page
-
-      setShowConfirm(false);
-      setSelectedAdmin(null);
-      showNotification("Admin deleted successfully", "success");
-    } catch (error) {
-      showNotification("Error deleting admin", "error");
-      console.error("Error deleting admin:", error);
+    const respond = await deleteAdmin(selectedAdmin);
+    setRefresh((prev) => prev + 1);
+    setShowConfirm(false);
+    setSelectedAdmin(null);
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
@@ -170,7 +155,7 @@ function page() {
                   message={notification.message}
                   type={notification.type}
                   onClose={() => setNotification(null)}
-                  />
+                />
               )}
               <div className="flex justify-between items-center mb-4">
                 {!isAdding && !isEditing && (

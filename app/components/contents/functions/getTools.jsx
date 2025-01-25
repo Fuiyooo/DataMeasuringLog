@@ -6,15 +6,12 @@ export default async function getTools() {
     const csrfToken = await getCsrfToken(); // Retrieve the CSRF token
 
     // Then, make the request to the tools API endpoint
-    const response = await fetch("/api/tools", {
-      method: "POST",
+    const response = await fetch("/api/tools?action=get-tools", {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         "csrf-token": csrfToken, // Include the CSRF token in the request headers
       },
-      body: JSON.stringify({
-        action: "get-tools", // Action for 'read' operation
-      }),
     });
 
     if (!response.ok) {

@@ -6,15 +6,12 @@ export default async function getAdmins() {
     const csrfToken = await getCsrfToken(); // Retrieve the CSRF token
 
     // Then, make the request to the admins API endpoint
-    const response = await fetch("/api/admins", {
-      method: "POST",
+    const response = await fetch("/api/admins?action=read", {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
         "csrf-token": csrfToken, // Include the CSRF token in the request headers
       },
-      body: JSON.stringify({
-        action: "read", // Action for 'read' operation
-      }),
     });
 
     if (!response.ok) {
