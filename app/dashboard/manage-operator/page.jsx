@@ -51,6 +51,17 @@ function page() {
     };
 
     fetchOperators();
+
+    const eventSource = new EventSource("/api/sse?resource=operators");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "refresh") {
+        fetchOperators();
+      }
+    };
+
+    return () => eventSource.close();
   }, [refresh]);
 
   // Handle perubahan input form

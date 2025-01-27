@@ -40,6 +40,17 @@ function page() {
     };
 
     fetchTools();
+
+    const eventSource = new EventSource("/api/sse?resource=tools");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "refresh") {
+        fetchTools();
+      }
+    };
+
+    return () => eventSource.close();
   }, [refresh]);
 
   const handleEdit = (tool) => {

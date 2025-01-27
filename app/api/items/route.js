@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers"; // Import cookies API
 import prisma from "@/app/lib/prisma";
+import { broadcast } from '../sse/route';
 
 // POST method for fetching users with 'OPERATOR' role
 export async function POST(req) {

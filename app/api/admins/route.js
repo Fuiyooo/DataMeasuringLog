@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers"; // Import cookies API
 import prisma from "@/app/lib/prisma";
+import { broadcast } from '../sse/route';
 
 // GET Api for fetching 'ADMIN' role
 export async function GET(req) {
@@ -129,6 +130,8 @@ export async function POST(req) {
                             role: "ADMIN", // Set the role to 'ADMIN'
                         },
                     });
+                    broadcast('admins', { type: 'refresh' });
+
                     return new NextResponse(JSON.stringify({ success: "Successfuly Add an Admin" }), { status: 201 });
 
                 } catch (error) {
@@ -172,7 +175,7 @@ export async function POST(req) {
                             role: "ADMIN", // Ensure role is set as 'ADMIN'
                         },
                     });
-
+                    broadcast('admins', { type: 'refresh' });
                     return new NextResponse(JSON.stringify({ success: "Successfuly Update an Admin" }), { status: 200 });
                 } catch (error) {
                     if (error.code === "P2002" || error.code === "P2003") {
@@ -195,7 +198,7 @@ export async function POST(req) {
                 await prisma.user.delete({
                     where: { id: userData.id },
                 });
-
+                broadcast('admins', { type: 'refresh' });
                 return new NextResponse(JSON.stringify({ success: "Successfuly Delete an Admin" }), { status: 200 });
 
             default:
