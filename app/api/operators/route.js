@@ -8,7 +8,7 @@ import { broadcast } from "../sse/route"
 export async function GET(req) {
     // Verify user authentication
     const session = await auth();
-    if (!session.id || !session.role) {
+    if (!session || !session.id || !session.role) {
         return new NextResponse(
             JSON.stringify({ error: "Unauthorized" }),
             { status: 401 }
