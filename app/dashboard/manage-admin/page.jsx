@@ -50,6 +50,18 @@ function page() {
     };
 
     fetchAdmins();
+
+    // Add SSE listener
+    const eventSource = new EventSource("/api/sse?resource=admins");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "refresh") {
+        fetchAdmins(); // Re-fetch data on SSE events
+      }
+    };
+
+    return () => eventSource.close();
   }, [refresh]);
 
   const handleChange = (e) => {

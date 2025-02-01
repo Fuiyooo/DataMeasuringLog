@@ -2,12 +2,13 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers"; // Import cookies API
 import prisma from "@/app/lib/prisma";
+import { broadcast } from "../sse/route"
 
 // GET Api for fetching 'OPERATOR' role
 export async function GET(req) {
     // Verify user authentication
     const session = await auth();
-    if (!session.id || !session.role) {
+    if (!session || !session.id || !session.role) {
         return new NextResponse(
             JSON.stringify({ error: "Unauthorized" }),
             { status: 401 }
@@ -133,6 +134,7 @@ export async function POST(req) {
                             role: "OPERATOR", // Set the role to 'OPERATOR'
                         },
                     });
+                    broadcast("operators", { type: "refresh" })
                     return new NextResponse(JSON.stringify({ success: "Successfuly Add an Operator" }), { status: 200 });
                 } catch (error) {
                     if (error.code === "P2002" || error.code === "P2003") {
@@ -176,6 +178,7 @@ export async function POST(req) {
                         },
                     });
 
+                    broadcast("operators", { type: "refresh" })
                     return new NextResponse(JSON.stringify({ success: "Successfuly Update an Operator" }), { status: 200 });
                 } catch (error) {
                     if (error.code === "P2002" || error.code === "P2003") {
@@ -194,21 +197,30 @@ export async function POST(req) {
                         { status: 400 }
                     );
                 }
+                try {
+                    const haveData = await prisma.item.findMany({
+                        where: { id_employee: userData.id_employee },
+                    });
 
-                const haveData = await prisma.measurment.findMany({
-                    where: { id_user: userData.id },
-                });
+                    if (haveData.length > 0) {
+                        return new NextResponse(
+                            JSON.stringify({ error: "Cannot delete user with existing data" }),
+                            { status: 400 }
+                        );
+                    } else {
+                        await prisma.user.delete({
+                            where: { id: userData.id },
+                        });
 
-                if (haveData.length > 0) {
+                        broadcast("operators", { type: "refresh" })
+                        return new NextResponse(JSON.stringify({ success: "Successfully Delete an Operator " }), { status: 200 });
+                    }
+                } catch (error) {
+                    console.log(error)
                     return new NextResponse(
-                        JSON.stringify({ error: "Cannot delete user with existing data" }),
+                        JSON.stringify({ error: "The user does not exist" }),
                         { status: 400 }
                     );
-                } else {
-                    await prisma.user.delete({
-                        where: { id: userData.id },
-                    });
-                    return new NextResponse(JSON.stringify({ success: "Successfully Delete an Operator " }), { status: 200 });
                 }
 
             default:

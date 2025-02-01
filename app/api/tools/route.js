@@ -2,12 +2,13 @@ import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers"; // Import cookies API
 import prisma from "@/app/lib/prisma";
+import { broadcast } from '../sse/route';
 
 // GET Api for fetching tools
 export async function GET(req) {
     // Verify user authentication
     const session = await auth();
-    if (!session.id || !session.role) {
+    if (!session || !session.id || !session.role) {
         return new NextResponse(
             JSON.stringify({ error: "Unauthorized" }),
             { status: 401 }
@@ -115,6 +116,7 @@ export async function POST(req) {
                         },
                     });
 
+                    broadcast("tools", { type: "refresh" });
                     return new NextResponse(JSON.stringify({ success: "Successfuly Add Tool" }), { status: 200 });
                 } catch (error) {
                     return new NextResponse(
@@ -133,6 +135,8 @@ export async function POST(req) {
                             name: toolData.name,
                         },
                     });
+
+                    broadcast("tools", { type: "refresh" });
                     return new NextResponse(
                         JSON.stringify({ success: "Successfully Update Tool" }),
                         { status: 200 }
@@ -158,6 +162,7 @@ export async function POST(req) {
                             id: toolID,
                         },
                     });
+                    broadcast("tools", { type: "refresh" });
                     return new NextResponse(
                         JSON.stringify({ success: "Successfuly Delete Tool" }, { status: 200 }),
                         { status: 200 }
