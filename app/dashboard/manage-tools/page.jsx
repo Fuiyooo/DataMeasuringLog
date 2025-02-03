@@ -3,11 +3,12 @@
 import React, { useState, useRef, useEffect, Suspense } from "react";
 
 // Components
-import Layout from "@/app/components/layout";
+import Layout from "@/app/components/Layout";
 import Table from "@/app/components/contents/table/ToolsTable";
 import BigModal from "@/app/components/contents/BigModal";
 import Button from "@/app/components/smallcomponents/Button";
 import Input from "@/app/components/smallcomponents/Input";
+import Notification from "@/app/components/smallcomponents/Notification";
 
 // Functions
 import getTools from "@/app/components/contents/functions/getTools";
@@ -17,14 +18,19 @@ import updateTool from "@/app/components/contents/functions/updateTool";
 
 function page() {
   const activePage = "Manage Tools";
+  const [refresh, setRefresh] = useState(0);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editTool, setEditTool] = useState(null);
   const [newTool, setNewTool] = useState({
     name: "",
   });
-
   const [tools, setTools] = useState([]);
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = (message, type = "info") => {
+    setNotification({ message, type });
+  };
 
   // Fetch tools saat komponen pertama kali di-render
   useEffect(() => {
@@ -34,39 +40,51 @@ function page() {
     };
 
     fetchTools();
-  }, []);
+
+    const eventSource = new EventSource("/api/sse?resource=tools");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "refresh") {
+        fetchTools();
+      }
+    };
+
+    return () => eventSource.close();
+  }, [refresh]);
 
   const handleEdit = (tool) => {
     setEditTool(tool);
     setIsEditing(true);
   };
 
-  const handleEditSubmit = async (tool) => {
-    try {
-      const updatedTool = await updateTool(tool);
-      setTools((prev) =>
-        prev.map((t) => (t.id === updatedTool.id ? updatedTool : t))
-      );
-    } catch (error) {
-      console.error("Error updating tool:", error);
+  const handleAddSubmit = async (data) => {
+    const respond = await createTool(data);
+    setRefresh((prev) => prev + 1);
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
-  const handleAddSubmit = async (data) => {
-    try {
-      const newTool = await createTool(data);
-      setTools((prev) => [...prev, newTool]);
-    } catch (error) {
-      console.error("Error adding tool:", error);
+  const handleEditSubmit = async (tool) => {
+    const respond = await updateTool(tool);
+    setRefresh((prev) => prev + 1);
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
   const handleRemove = async (data) => {
-    try {
-      await removeTool(data);
-      setTools((prev) => prev.filter((t) => t.id !== data.id));
-    } catch (error) {
-      console.error("Error removing tool:", error);
+    const respond = await removeTool(data);
+    setRefresh((prev) => prev + 1);
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
@@ -77,6 +95,13 @@ function page() {
         contents={
           <div className="flex flex-col items-center">
             <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-6">
+              {notification && (
+                <Notification
+                  message={notification.message}
+                  type={notification.type}
+                  onClose={() => setNotification(null)}
+                />
+              )}
               <div className="flex justify-between items-center mb-4">
                 {!isAdding && !isEditing && (
                   <>

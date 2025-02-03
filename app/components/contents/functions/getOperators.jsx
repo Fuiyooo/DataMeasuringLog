@@ -2,19 +2,15 @@ import { getCsrfToken } from "next-auth/react";
 
 export default async function getOperators() {
   try {
-    // First, fetch CSRF token
-    const csrfToken = await getCsrfToken(); // Retrieve the CSRF token
+    const csrfToken = await getCsrfToken();
 
-    // Then, make the request to the operators API endpoint
-    const response = await fetch("/api/operators", {
-      method: "POST",
+    // Add action as query parameter
+    const response = await fetch("/api/operators?action=read", {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "csrf-token": csrfToken, // Include the CSRF token in the request headers
+        "csrf-token": csrfToken,
       },
-      body: JSON.stringify({
-        action: "read", // Action for 'read' operation
-      }),
     });
 
     if (!response.ok) {

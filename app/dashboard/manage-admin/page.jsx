@@ -9,6 +9,7 @@ import BigModal from "@/app/components/contents/BigModal";
 import Button from "@/app/components/smallcomponents/Button";
 import Input from "@/app/components/smallcomponents/Input";
 import SmallModal from "@/app/components/contents/SmallModal";
+import Notification from "@/app/components/smallcomponents/Notification";
 
 // Functions
 import getAdmins from "@/app/components/contents/functions/getAdmins";
@@ -18,14 +19,15 @@ import deleteAdmin from "@/app/components/contents/functions/deleteAdmin";
 
 function page() {
   const activePage = "Manage Admin";
+  const [refresh, setRefresh] = useState(0);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editAdmin, setEditAdmin] = useState(null);
   const [admins, setAdmins] = useState([]);
   const [newAdmin, setNewAdmin] = useState({
     name: "",
-    username: "",
     id_employee: "",
+    username: "",
     password: "",
   });
 
@@ -33,7 +35,12 @@ function page() {
   const [showConfirmAdd, setShowConfirmAdd] = useState(false);
   const [showConfirmUpdate, setShowConfirmUpdate] = useState(false);
   const [selectedAdmin, setSelectedAdmin] = useState(null);
+  const [notification, setNotification] = useState(null);
   const formRef = useRef(null);
+
+  const showNotification = (message, type = "info") => {
+    setNotification({ message, type });
+  };
 
   // Fetch admins on initial render
   useEffect(() => {
@@ -43,7 +50,19 @@ function page() {
     };
 
     fetchAdmins();
-  }, []);
+
+    // Add SSE listener
+    const eventSource = new EventSource("/api/sse?resource=admins");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "refresh") {
+        fetchAdmins(); // Re-fetch data on SSE events
+      }
+    };
+
+    return () => eventSource.close();
+  }, [refresh]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,28 +98,31 @@ function page() {
   };
 
   const confirmAdd = async () => {
-    try {
-      await createAdmin(newAdmin);
-      setAdmins((prev) => [...prev, { ...newAdmin }]);
-      setNewAdmin({ name: "", username: "", password: "", id_employee: "" });
-      setIsAdding(false);
-      setShowConfirmAdd(false);
-    } catch (error) {
-      console.error("Error adding admin:", error);
+    const respond = await createAdmin(newAdmin);
+    setRefresh((prev) => prev + 1);
+
+    setNewAdmin({ name: "", id_employee: "", username: "", password: "" });
+    setIsAdding(false);
+    setShowConfirmAdd(false);
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
   const confirmUpdate = async () => {
-    try {
-      await updateAdmin(editAdmin);
-      setAdmins((prev) =>
-        prev.map((admin) => (admin.id === editAdmin.id ? editAdmin : admin))
-      );
-      setIsEditing(false);
-      setEditAdmin(null);
-      setShowConfirmUpdate(false);
-    } catch (error) {
-      console.error("Error updating admin:", error);
+    const respond = await updateAdmin(editAdmin);
+    console.log(respond);
+    setRefresh((prev) => prev + 1);
+
+    setIsEditing(false);
+    setEditAdmin(null);
+    setShowConfirmUpdate(false);
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
@@ -115,15 +137,14 @@ function page() {
   };
 
   const confirmRemove = async () => {
-    try {
-      await deleteAdmin(selectedAdmin);
-      setAdmins((prev) =>
-        prev.filter((admin) => admin.id !== selectedAdmin.id)
-      );
-      setShowConfirm(false);
-      setSelectedAdmin(null);
-    } catch (error) {
-      console.error("Error deleting admin:", error);
+    const respond = await deleteAdmin(selectedAdmin);
+    setRefresh((prev) => prev + 1);
+    setShowConfirm(false);
+    setSelectedAdmin(null);
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
@@ -141,6 +162,13 @@ function page() {
         contents={
           <div className="w-full flex flex-col items-center">
             <div className="w-full bg-white rounded-lg shadow-lg p-6">
+              {notification && (
+                <Notification
+                  message={notification.message}
+                  type={notification.type}
+                  onClose={() => setNotification(null)}
+                />
+              )}
               <div className="flex justify-between items-center mb-4">
                 {!isAdding && !isEditing && (
                   <>
@@ -214,7 +242,7 @@ function page() {
                         handleChange={handleChange}
                       />
                       <Input
-                        title="ID Employee"
+                        title="ID Admin"
                         name="id_employee"
                         type="text"
                         value={

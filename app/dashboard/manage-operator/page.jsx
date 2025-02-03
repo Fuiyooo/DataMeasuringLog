@@ -3,12 +3,13 @@
 import React, { useState, useRef, useEffect, Suspense } from "react";
 
 // Components
-import Layout from "@/app/components/layout";
+import Layout from "@/app/components/Layout";
 import Table from "@/app/components/contents/table/Table";
 import BigModal from "@/app/components/contents/BigModal";
 import Button from "@/app/components/smallcomponents/Button";
 import Input from "@/app/components/smallcomponents/Input";
 import SmallModal from "@/app/components/contents/SmallModal";
+import Notification from "@/app/components/smallcomponents/Notification";
 
 // Functions
 import getOperators from "@/app/components/contents/functions/getOperators";
@@ -18,11 +19,13 @@ import deleteOperator from "@/app/components/contents/functions/deleteOperator";
 
 function page() {
   const activePage = "Manage Operator";
+  const [refresh, setRefresh] = useState(0);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editOperator, setEditOperator] = useState(null);
   const [operators, setOperators] = useState([]);
   const [newOperator, setNewOperator] = useState({
+    id: "",
     name: "",
     username: "",
     id_employee: "",
@@ -33,7 +36,12 @@ function page() {
   const [showConfirmAdd, setShowConfirmAdd] = useState(false); // Confirmation box untuk add
   const [showConfirmUpdate, setShowConfirmUpdate] = useState(false); // Confirmation box untuk update
   const [selectedOperator, setSelectedOperator] = useState(null); // Operator yang akan dihapus atau diperbarui
+  const [notification, setNotification] = useState(null);
   const formRef = useRef(null);
+
+  const showNotification = (message, type = "info") => {
+    setNotification({ message, type });
+  };
 
   // Fetch operators saat komponen pertama kali di-render
   useEffect(() => {
@@ -43,7 +51,18 @@ function page() {
     };
 
     fetchOperators();
-  }, []);
+
+    const eventSource = new EventSource("/api/sse?resource=operators");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "refresh") {
+        fetchOperators();
+      }
+    };
+
+    return () => eventSource.close();
+  }, [refresh]);
 
   // Handle perubahan input form
   const handleChange = (e) => {
@@ -83,36 +102,39 @@ function page() {
 
   // Konfirmasi penambahan operator
   const confirmAdd = async () => {
-    const newId = operators.length + 1;
-    try {
-      await createOperator(newOperator);
+    const respond = await createOperator(newOperator);
 
-      setOperators((prev) => [...prev, { id: newId, ...newOperator }]);
+    setRefresh((prev) => prev + 1);
 
-      setNewOperator({ name: "", username: "", password: "" });
-      setIsAdding(false);
-      setShowConfirmAdd(false); // Sembunyikan confirmation box
-    } catch (error) {
-      console.error("Error adding operator:", error);
+    setNewOperator({
+      id: "",
+      id_employee: "",
+      name: "",
+      username: "",
+      password: "",
+    });
+    setIsAdding(false);
+    setShowConfirmAdd(false); // Sembunyikan confirmation box
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
   // Konfirmasi pembaruan operator
   const confirmUpdate = async () => {
-    try {
-      await updateOperator(editOperator);
+    const respond = await updateOperator(editOperator);
 
-      setOperators((prev) =>
-        prev.map((operator) =>
-          operator.id === editOperator.id ? editOperator : operator
-        )
-      );
+    setRefresh((prev) => prev + 1);
 
-      setIsEditing(false);
-      setEditOperator(null);
-      setShowConfirmUpdate(false); // Sembunyikan confirmation box
-    } catch (error) {
-      console.error("Error updating operator:", error);
+    setIsEditing(false);
+    setEditOperator(null);
+    setShowConfirmUpdate(false); // Sembunyikan confirmation box
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
@@ -130,17 +152,16 @@ function page() {
 
   // Konfirmasi penghapusan operator
   const confirmRemove = async () => {
-    try {
-      await deleteOperator(selectedOperator);
+    const respond = await deleteOperator(selectedOperator);
 
-      setOperators((prev) =>
-        prev.filter((operator) => operator.id !== selectedOperator.id)
-      );
+    setRefresh((prev) => prev + 1);
 
-      setShowConfirm(false);
-      setSelectedOperator(null);
-    } catch (error) {
-      console.error("Error deleting operator:", error);
+    setShowConfirm(false);
+    setSelectedOperator(null);
+    if (respond.success) {
+      showNotification(respond.success, "success");
+    } else {
+      showNotification(respond.error, "error");
     }
   };
 
@@ -159,6 +180,13 @@ function page() {
         contents={
           <div className="w-full flex flex-col items-center">
             <div className="w-full bg-white rounded-lg shadow-lg p-6">
+              {notification && (
+                <Notification
+                  message={notification.message}
+                  type={notification.type}
+                  onClose={() => setNotification(null)}
+                />
+              )}
               <div className="flex justify-between items-center mb-4">
                 {!isAdding && !isEditing && (
                   <>
