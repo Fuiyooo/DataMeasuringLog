@@ -6,25 +6,8 @@ import React, { useState, Suspense, lazy, useEffect } from "react";
 import Layout from "@/app/components/Layout";
 const Parameter = lazy(() => import("@/app/components/contents/Parameter"));
 
-// Functions
-import getTools from "@/app/components/contents/functions/getTools";
-
 function page() {
   const activePage = "Parameter";
-  const [tools, setTools] = useState([]);
-
-  useEffect(() => {
-    const fetchTools = async () => {
-      try {
-        const tools = await getTools();
-        setTools(tools);
-      } catch (error) {
-        console.error("Failed to fetch tools:", error);
-      }
-    };
-
-    fetchTools();
-  }, []);
 
   const [numParameters, setNumParameters] = useState(12); // Jumlah parameter awal dan state
 
@@ -48,7 +31,6 @@ function page() {
           <div className="flex flex-col w-full h-full p-4 space-y-4">
             <Suspense fallback={<div>Loading...</div>}>
               <Parameter
-                tools={tools}
                 addParameter={addParameter}
                 removeParameter={removeParameter}
                 numParameters={numParameters}

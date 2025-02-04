@@ -28,9 +28,9 @@ function CurrentDate() {
   return (
     <div className="flex flex-col items-center justify-center text-gray-600 text-xl">
       <div className="mb-2">
-        <p className="text-gray-600 text-bold font-semibold">
+        <div className="text-gray-600 text-bold font-semibold">
           Date: {currentDate}
-        </p>
+        </div>
       </div>
       <div className="font-semibold">
         Time:{" "}

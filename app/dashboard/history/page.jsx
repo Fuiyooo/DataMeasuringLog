@@ -5,7 +5,9 @@ import Layout from "@/app/components/Layout";
 import HistoryTable from "@/app/components/contents/table/HistoryTable";
 import SearchBar from "@/app/components/contents/table/SearchBar";
 import Notification from "@/app/components/smallcomponents/Notification";
-import getOperators from "@/app/components/contents/functions/getOperators";
+
+// Functions
+import getItems from "@/app/components/contents/functions/getItems";
 
 function Page() {
   const activePage = "History Table";
@@ -14,15 +16,7 @@ function Page() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState({});
 
-  const recapData = [
-    { date: "2025-01-30", operator: "John Doe", idBarang: "A001", namaBarang: "Laptop", tipeBarang: "Electronics", status: "Added", result: "Successful" },
-    { date: "2025-01-29", operator: "Jane Smith", idBarang: "A002", namaBarang: "Printer", tipeBarang: "Office Supplies", status: "Updated", result: "Pending" },
-    { date: "2025-01-28", operator: "Mike Johnson", idBarang: "A003", namaBarang: "Monitor", tipeBarang: "Electronics", status: "Deleted", result: "Failed" },
-    { date: "2024-01-28", operator: "Matt Rife", idBarang: "A004", namaBarang: "Monitor", tipeBarang: "Electronics", status: "Added", result: "Failed" },
-    { date: "2024-01-28", operator: "Matt Rife", idBarang: "A004", namaBarang: "Monitor", tipeBarang: "Electronics", status: "Added", result: "Failed" },
-    { date: "2024-01-28", operator: "Matt Rife", idBarang: "A004", namaBarang: "Monitor", tipeBarang: "Electronics", status: "Added", result: "Failed" },
-
-  ];
+  const [recapData, setRecapData] = useState([]);
 
   const [notification, setNotification] = useState(null);
 
@@ -32,8 +26,8 @@ function Page() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const operatorsData = await getOperators();
-      setOperators(operatorsData);
+      const fetched_items = await getItems();
+      setRecapData(fetched_items);
     };
 
     fetchData();
@@ -48,7 +42,9 @@ function Page() {
 
     // Filter berdasarkan input table head
     const filterMatch = Object.keys(filters).every((key) =>
-      filters[key] ? item[key].toLowerCase().includes(filters[key].toLowerCase()) : true
+      filters[key]
+        ? item[key].toLowerCase().includes(filters[key].toLowerCase())
+        : true
     );
 
     return searchMatch && filterMatch;
@@ -71,7 +67,10 @@ function Page() {
 
               {/* Search Bar */}
               <div className="w-full mb-4">
-                <SearchBar placeholder="Search history..." onSearch={setSearchQuery} />
+                <SearchBar
+                  placeholder="Search history..."
+                  onSearch={setSearchQuery}
+                />
               </div>
 
               {/* Table */}
@@ -80,7 +79,10 @@ function Page() {
                   <h1 className="text-xl font-bold text-gray-800">History</h1>
                 </div>
                 <Suspense fallback={<div>Loading Operator Table...</div>}>
-                  <HistoryTable data={filteredData} onFilterChange={setFilters} />
+                  <HistoryTable
+                    data={filteredData}
+                    onFilterChange={setFilters}
+                  />
                 </Suspense>
               </div>
             </div>

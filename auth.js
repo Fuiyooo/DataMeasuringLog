@@ -43,7 +43,7 @@ const authOptions = {
                     if (user) {
                         const isPasswordValid = password === user.password;
                         if (isPasswordValid) {
-                            return { id: user.id, username: user.username, name: user.name, role: user.role };
+                            return { id: user.id, username: user.username, name: user.name, role: user.role, id_employee: user.id_employee };
                         } else {
                             throw new IncorrectPasswordError();
                         }

@@ -113,7 +113,6 @@ function page() {
 
   const confirmUpdate = async () => {
     const respond = await updateAdmin(editAdmin);
-    console.log(respond);
     setRefresh((prev) => prev + 1);
 
     setIsEditing(false);

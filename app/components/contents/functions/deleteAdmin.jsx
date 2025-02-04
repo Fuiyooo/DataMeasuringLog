@@ -17,10 +17,6 @@ export default async function deleteAdmin(admin) {
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to delete admins");
-  }
-
   const admins = await response.json();
   return admins;
 }

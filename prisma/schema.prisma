@@ -68,10 +68,11 @@ model Item {
 }
 
 model ParameterValue {
-  id           Int   @id @default(autoincrement())
+  id           Int    @id @default(autoincrement())
   id_item      Int
   id_parameter Int
   value        Float
+  status       String
 
   item       Item      @relation(fields: [id_item], references: [id], onUpdate: Cascade, onDelete: Cascade)
   parameters Parameter @relation(fields: [id_parameter], references: [id], onUpdate: Cascade, onDelete: Cascade)

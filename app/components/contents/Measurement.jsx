@@ -1,59 +1,82 @@
 import React, { useState, useEffect } from "react";
 
-import addParameterPlan from "./functions/addParameterPlan";
+// Functions
+import addItem from "./functions/addItem";
+import getParameterPlan from "./functions/getParameterPlan";
 
-function Measurement({ tools }) {
-  const [formData, setFormData] = useState({
-    barcodeId: "",
+function Measurement() {
+  const [numParameters, setNumParameters] = useState(0);
+
+  const [paramData, setParamData] = useState({
     namaBarang: "",
     typeBarang: "",
-    parameters: Array.from({ length: 8 }, () => ({
+    image: "",
+    parameters: Array.from({ length: numParameters }, () => ({
+      maxValue: "",
       minValue: "",
-      status: "", // Changed maxValue to status
-      id_tool: tools[0]?.id || "",
-      unit: "unit",
+      status: "",
+      tool: "",
     })),
   });
 
-  const [numParameters, setNumParameters] = useState(8); // Default set to 8
+  const [formData, setFormData] = useState([]);
+
   const [imageUrl, setImageUrl] = useState(null); // Store image URL from database
 
-  // Assuming image URL is passed from props or fetched from an API
+  const [barcode, setBarcode] = useState("");
+  const [debouncedBarcode, setDebouncedBarcode] = useState("");
+
   useEffect(() => {
-    // Example of how you might fetch the image URL
-    // setImageUrl('https://example.com/path/to/image.jpg');
-    setImageUrl('https://via.placeholder.com/150'); // Example placeholder image URL
-  }, []);
+    const handler = setTimeout(() => {
+      setDebouncedBarcode(barcode);
+    }, 500);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [barcode]);
 
-  const addParameter = () => {
-    if (numParameters < 20) {
-      setNumParameters((prev) => prev + 1);
-      setFormData((prevData) => ({
-        ...prevData,
-        parameters: [
-          ...prevData.parameters,
-          { minValue: "", status: "", id_tool: "1" }, // Changed maxValue to status
-        ],
-      }));
+  useEffect(() => {
+    if (debouncedBarcode) {
+      fetchItemParams(debouncedBarcode);
     }
-  };
-
-  const removeParameter = () => {
-    if (numParameters > 1) {
-      setNumParameters((prev) => prev - 1);
-      setFormData((prevData) => ({
-        ...prevData,
-        parameters: prevData.parameters.slice(0, -1),
-      }));
-    }
-  };
+  }, [debouncedBarcode]);
 
   const handleSave = () => {
-    console.log(formData);
+    // Call the addItem function
+    addItem(paramData, formData);
 
-    // Call the addParameter function
-    addParameterPlan(formData);
+    // TODO: Add success message
   };
+
+  const fetchItemParams = async (barcodeId) => {
+    // Fetch the item parameters
+    const params = await getParameterPlan(barcodeId);
+    setParamData({
+      id_item: params.item_information.id_item || "",
+      namaBarang: params.item_information.name || "",
+      typeBarang: params.item_information.type || "",
+      image: params.item_information.image || "",
+      parameters:
+        params.parameters?.map((param) => ({
+          maxValue: param.maxValue || "",
+          minValue: param.minValue || "",
+          status: "",
+          tool: param.tool || "",
+          // Include existing parameter ID if available
+          ...(param.id && { id: param.id }),
+        })) || [],
+    });
+
+    if (params.item_information.image) {
+      setImageUrl(params.item_information.image);
+    } else {
+      setImageUrl(null); // If no image, reset to null
+    }
+  };
+
+  useEffect(() => {
+    setNumParameters(paramData.parameters.length);
+  }, [paramData]);
 
   return (
     <section className="bg-gray-100 min-h-screen">
@@ -61,17 +84,22 @@ function Measurement({ tools }) {
         <div className="flex justify-between items-center mb-8">
           <div className="flex-1">
             <div className="w-full h-12 px-4 bg-gray-200 border border-gray-400 rounded text-gray-700 flex items-center justify-center">
-              {formData.barcodeId || "Barcode ID"}
+              <input
+                type="text"
+                placeholder="Barcode ID"
+                className="bg-inherit focus:outline-none w-full text-center"
+                onChange={(e) => setBarcode(e.target.value)}
+              />
             </div>
           </div>
           <div className="flex-1 mx-2">
             <div className="w-full h-12 px-4 bg-gray-200 border border-gray-400 rounded text-gray-700 flex items-center justify-center">
-              {formData.namaBarang || "Nama Barang"}
+              {paramData.namaBarang || "Nama Barang"}
             </div>
           </div>
           <div className="flex-1 mx-2">
             <div className="w-full h-12 px-4 bg-gray-200 border border-gray-400 rounded text-gray-700 flex items-center justify-center">
-              {formData.typeBarang || "Type Barang"}
+              {paramData.typeBarang || "Type Barang"}
             </div>
           </div>
           <div className="flex-1 flex items-center justify-center h-12 bg-gray-200 rounded text-gray-700">
@@ -94,12 +122,11 @@ function Measurement({ tools }) {
 
           <div className="col-span-8">
             <h2 className="text-lg font-medium text-gray-600 mb-4">
-              Enter limits for the size of each measurement point
+              Enter the values for each measurement point
             </h2>
 
             <MeasurementInput
-              parameters={formData.parameters}
-              tools={tools}
+              parameters={paramData.parameters}
               onUpdate={(updatedParams) =>
                 setFormData((prevData) => ({
                   ...prevData,
@@ -107,21 +134,6 @@ function Measurement({ tools }) {
                 }))
               }
             />
-
-            <div className="flex mt-6">
-              <button
-                className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 mr-2"
-                onClick={addParameter}
-              >
-                +
-              </button>
-              <button
-                className="bg-red-600 text-white px-4 py-2 rounded shadow hover:bg-red-700"
-                onClick={removeParameter}
-              >
-                -
-              </button>
-            </div>
 
             <div className="flex justify-end mt-8 space-x-4">
               <button
@@ -145,15 +157,23 @@ function Measurement({ tools }) {
 }
 
 function MeasurementInput({ parameters, onUpdate, tools }) {
-  const handleChange = (index, key, value) => {
+  const handleFormDataChange = (index, key, value) => {
     const updatedParameters = [...parameters];
     updatedParameters[index][key] = value;
 
-    // Check if minValue is between 0 and 1
-    if (key === "minValue") {
-      const minValue = parseFloat(value);
-      const status = (minValue >= 0 && minValue <= 1) ? "OK" : "NG";
-      const statusColor = (minValue >= 0 && minValue <= 1) ? "bg-green-500" : "bg-red-500";
+    // Check if value is between 0 and 1
+    if (key === "value") {
+      const input_value = parseFloat(value);
+      const status =
+        input_value >= parameters[index].minValue &&
+        input_value <= parameters[index].maxValue
+          ? "OK"
+          : "NG";
+      const statusColor =
+        input_value >= parameters[index].minValue &&
+        input_value <= parameters[index].maxValue
+          ? "bg-green-500"
+          : "bg-red-500";
 
       updatedParameters[index].status = status;
       updatedParameters[index].statusColor = statusColor; // Add statusColor for dynamic background
@@ -167,27 +187,30 @@ function MeasurementInput({ parameters, onUpdate, tools }) {
       {parameters.map((param, index) => (
         <div key={index} className="flex items-center mb-2">
           <span className="w-6 text-gray-700">{index + 1}.</span>
-          
+
           {/* Min Value input: Only numbers allowed */}
           <input
             type="number"
-            value={param.minValue}
-            onChange={(e) => handleChange(index, "minValue", e.target.value)}
+            onChange={(e) =>
+              handleFormDataChange(index, "value", e.target.value)
+            }
             className="border border-gray-400 rounded px-2 py-1 w-20 mr-2 bg-gray-200 text-gray-700"
-            placeholder="Min"
+            placeholder="Value"
           />
-          <span className="w-8 text-center text-gray-700">-</span>
-          
+          <span className="w-8 text-center text-gray-700 mr-2 ">-</span>
+
           {/* Status */}
           <div
-            className={`border border-gray-400 rounded px-2 py-1 w-20 mr-2 ${param.statusColor || 'bg-gray-200'} text-gray-700 flex items-center justify-center`}
+            className={`border border-gray-400 rounded px-2 py-1 w-20 mr-2 ${
+              param.statusColor || "bg-gray-200"
+            } text-gray-700 flex items-center justify-center`}
           >
             {param.status || "Status"}
           </div>
 
-          {/* Tool dropdown */}
+          {/* Tool */}
           <div className="border border-gray-400 rounded px-2 py-1 w-32 bg-gray-200 text-gray-700 flex items-center justify-center">
-            {tools.find(tool => tool.id === param.id_tool)?.name || "Tool"}
+            {param.tool || "Tool"}
           </div>
         </div>
       ))}

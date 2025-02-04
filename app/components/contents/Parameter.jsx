@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 
 import addParameterPlan from "./functions/addParameterPlan";
+import getTools from "@/app/components/contents/functions/getTools";
 
-function Parameter({ tools }) {
+function Parameter() {
+  const [tools, setTools] = useState([]);
+
   const [formData, setFormData] = useState({
     barcodeId: "",
     namaBarang: "",
@@ -10,10 +13,38 @@ function Parameter({ tools }) {
     parameters: Array.from({ length: 8 }, () => ({
       minValue: "",
       maxValue: "",
-      id_tool: tools[0]?.id || "",
+      id_tool: tools[0]?.id,
       unit: "unit",
     })),
   });
+
+  useEffect(() => {
+    const fetchTools = async () => {
+      try {
+        const fetchedTools = await getTools();
+        setTools(fetchedTools);
+      } catch (error) {
+        console.error("Failed to fetch tools:", error);
+      }
+    };
+    fetchTools();
+  }, []);
+
+  useEffect(() => {
+    if (tools.length > 0) {
+      setFormData({
+        barcodeId: "",
+        namaBarang: "",
+        typeBarang: "",
+        parameters: Array.from({ length: 8 }, () => ({
+          minValue: "",
+          maxValue: "",
+          id_tool: tools[0]?.id || "",
+          unit: "unit",
+        })),
+      });
+    }
+  }, [tools]);
 
   const [numParameters, setNumParameters] = useState(8); // Default set to 8
   const [image, setImage] = useState(null);
@@ -25,7 +56,7 @@ function Parameter({ tools }) {
         ...prevData,
         parameters: [
           ...prevData.parameters,
-          { minValue: "", maxValue: "", id_tool: "1" },
+          { minValue: "", maxValue: "", id_tool: tools[0].id },
         ],
       }));
     }
@@ -44,9 +75,13 @@ function Parameter({ tools }) {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Revoke the previous object URL if it exists to avoid memory leaks
+      if (image) {
+        URL.revokeObjectURL(image);
+      }
       const imageUrl = URL.createObjectURL(file);
       setImage(imageUrl);
-      setFormData((prev) => ({ ...prev, imageUrl })); // Update formData
+      setFormData((prev) => ({ ...prev, imageUrl: file })); // Update formData
     }
   };
 
@@ -58,15 +93,16 @@ function Parameter({ tools }) {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file) {
+      if (image) {
+        URL.revokeObjectURL(image);
+      }
       const imageUrl = URL.createObjectURL(file);
       setImage(imageUrl);
-      setFormData((prev) => ({ ...prev, imageUrl })); // Update formData
+      setFormData((prev) => ({ ...prev, imageUrl: file })); // Update formData
     }
   };
 
   const handleSave = () => {
-    console.log(formData);
-
     // Call the addParameter function
     addParameterPlan(formData);
 

@@ -1,20 +1,21 @@
 import { getCsrfToken } from "next-auth/react";
 
-export default async function createTool(newTool) {
+export default async function addItem(paramData, paramValues) {
   // First, fetch CSRF token
   const csrfToken = await getCsrfToken(); // Retrieve the CSRF token
 
+  const formData = new FormData();
+  formData.append("action", "add-item");
+  formData.append("data", JSON.stringify(paramData));
+  formData.append("paramValues", JSON.stringify(paramValues.parameters));
+
   // Then, make the request to the tools API endpoint
-  const response = await fetch("/api/tools", {
+  const response = await fetch("/api/items", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
       "csrf-token": csrfToken, // Include the CSRF token in the request headers
     },
-    body: JSON.stringify({
-      action: "add-tool", // Action for 'add-tool' operation
-      toolData: newTool,
-    }),
+    body: formData,
   });
 
   const respond = await response.json();

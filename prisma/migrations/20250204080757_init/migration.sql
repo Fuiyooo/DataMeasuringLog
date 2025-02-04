@@ -57,6 +57,7 @@ CREATE TABLE `ParameterValue` (
     `id_item` INTEGER NOT NULL,
     `id_parameter` INTEGER NOT NULL,
     `value` DOUBLE NOT NULL,
+    `status` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

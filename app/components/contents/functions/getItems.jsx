@@ -1,11 +1,10 @@
 import { getCsrfToken } from "next-auth/react";
 
-export default async function getTools() {
+export default async function getItems() {
   // First, fetch CSRF token
   const csrfToken = await getCsrfToken(); // Retrieve the CSRF token
 
-  // Then, make the request to the tools API endpoint
-  const response = await fetch("/api/tools?action=get-tools", {
+  const response = await fetch("/api/items?action=get-items", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -13,6 +12,6 @@ export default async function getTools() {
     },
   });
 
-  const tools = await response.json();
-  return tools;
+  const items = await response.json();
+  return items;
 }

@@ -17,10 +17,6 @@ export default async function deleteOperator(operator) {
     }),
   });
 
-  if (!response.ok) {
-    throw new Error("Failed to delete operator");
-  }
-
   const operators = await response.json();
   return operators;
 }
