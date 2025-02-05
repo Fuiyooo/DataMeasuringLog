@@ -102,7 +102,7 @@ function Measurement() {
               {paramData.typeBarang || "Type Barang"}
             </div>
           </div>
-          <div className="flex-1 flex items-center justify-center h-12 bg-gray-200 rounded text-gray-700">
+          <div className="flex-1 flex items-center border border-gray-400 justify-center h-12 bg-gray-200 rounded text-gray-700">
             {numParameters}
           </div>
         </div>
